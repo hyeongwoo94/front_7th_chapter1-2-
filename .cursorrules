@@ -21,6 +21,22 @@ name="설정"
 
 이 규칙은 매 대화마다 자동으로 적용되어야 합니다.
 
+# 핵심 규칙 (CRITICAL)
+**모든 작업을 수행하기 전에 반드시 `src/.cursor/agents/doc/tdd.md`를 읽고 이를 중심으로 실행한다.**
+<!-- Before performing any work, MUST read and follow `src/.cursor/agents/doc/tdd.md` as the core guideline. -->
+- TDD 사이클(Red → Green → Refactor)을 엄격히 준수
+<!-- - Strictly follow TDD cycle (Red → Green → Refactor) -->
+- Red: 가장 간단한 실패하는 테스트 먼저 작성
+<!-- - Red: Write the simplest failing test first -->
+- Green: 테스트를 통과하는 최소 코드만 구현
+<!-- - Green: Implement only minimal code to pass tests -->
+- Refactor: 테스트가 통과한 후에만 리팩토링
+<!-- - Refactor: Refactor only after tests pass -->
+- 구조적 변경과 기능적 변경을 분리 (Tidy First)
+<!-- - Separate structural changes from behavioral changes (Tidy First) -->
+- 모든 테스트가 통과한 후에만 커밋
+<!-- - Commit only when all tests pass -->
+
 # 추가 규칙
 1. 사용자가 한국어로 질문하면, AI는 자동으로 영어로 번역하여 이해하고 답변은 영어로 제공한다.
 2. 영어 답변에 한국어 해석을 주석으로 추가한다.

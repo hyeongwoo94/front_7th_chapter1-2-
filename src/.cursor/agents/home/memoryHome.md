@@ -124,6 +124,23 @@ describe('FunctionName >', () => {
 });
 ```
 
+---
+
+## Test Creation History
+<!-- 테스트 생성 기록 -->
+
+### test_01.spec.ts (2025-10-27)
+**Description:** "공휴일이 없는 월에 대해 빈객체를 반환한다"
+**Type:** API function test (fetchHolidays)
+**Pattern:** Simple action description
+
+### test_02.spec.ts (2025-10-27)
+**Description:** "일정 생성 또는 수정 시 반복 유형을 선택할 수 있다"
+**Type:** Hook test (useEventForm - repeatType selection)
+**Pattern:** Detailed scenario description
+**Imports:** `renderHook, act` from '@testing-library/react', `useEventForm` from hooks
+**Test Pattern:** Multiple act-assert cycles for different repeat types (none, daily, weekly, monthly, yearly)
+
 ## Storage Workflow
 <!-- 저장 워크플로 -->
 

@@ -67,14 +67,17 @@ These keywords trigger specific workflows when issued by the user.
 <!-- 2. 건물주가 세월이(planerHome.md)에서 학습한 테스트 디스크립션 패턴을 확인 -->
 3. King validates description style against learned patterns
 <!-- 3. 건물주가 학습한 패턴에 대해 디스크립션 스타일 검증 -->
-4. King creates test file in `src/.cursor/agents/test/` folder following naming convention (test_01.spec.ts, test_02.spec.ts, etc.)
-<!-- 4. 건물주가 네이밍 규칙(test_01.spec.ts, test_02.spec.ts 등)을 따라 `src/.cursor/agents/test/` 폴더에 테스트 파일 생성 -->
-5. King imports necessary functions from utils/apis based on description
-<!-- 5. 건물주가 디스크립션에 기반하여 utils/apis에서 필요한 함수를 import -->
+4. King checks existing test files in `src/.cursor/agents/test/` and auto-increments file number (test_01.spec.ts → test_02.spec.ts → test_03.spec.ts, etc.)
+<!-- 4. 건물주가 `src/.cursor/agents/test/`의 기존 테스트 파일을 확인하고 파일 번호를 자동 증가 (test_01.spec.ts → test_02.spec.ts → test_03.spec.ts 등) -->
+5. King imports necessary functions/hooks from utils/apis/hooks based on description
+<!-- 5. 건물주가 디스크립션에 기반하여 utils/apis/hooks에서 필요한 함수/훅을 import -->
 6. King writes test following learned patterns (Arrange-Act-Assert, description format)
 <!-- 6. 건물주가 학습한 패턴(Arrange-Act-Assert, 디스크립션 형식)을 따라 테스트 작성 -->
 7. King stores implementation in memoryHome.md for future reference
 <!-- 7. 건물주가 향후 참조를 위해 memoryHome.md에 구현 저장 -->
+
+**File Naming:** Auto-increments based on existing files (test_01.spec.ts, test_02.spec.ts, test_03.spec.ts, ...)
+<!-- 파일 네이밍: 기존 파일 기반 자동 증가 (test_01.spec.ts, test_02.spec.ts, test_03.spec.ts, ...) -->
 
 ## Command Management
 <!-- 명령 관리 -->

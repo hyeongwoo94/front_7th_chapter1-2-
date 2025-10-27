@@ -77,6 +77,93 @@
 - **Review Workflow**: Query Memory → Plan → Delegate to Manager
 <!-- 검토 워크플로: 세월이 조회 → 계획 → 관리자에게 위임 -->
 
+---
+
+## Application Workflow Analysis (2025-10-27)
+<!-- 애플리케이션 워크플로 분석 (2025-10-27) -->
+
+### 1. Event Creation Workflow
+<!-- 이벤트 생성 워크플로 -->
+
+**Flow:** User Input (UI) → Form Validation → Overlap Check → API Call → State Update → UI Refresh
+
+**Steps:**
+1. Form Initialization (useEventForm) → State with defaults
+2. User Input Collection → All form fields
+3. Validation → Required fields + time validation
+4. Data Construction → EventForm/Event object
+5. Overlap Detection → findOverlappingEvents
+6. API Call → POST /api/events or PUT /api/events/:id
+7. Success → Refetch events, reset form, show snackbar
+8. Error → Log, show error snackbar
+
+### 2. Event Editing Workflow
+<!-- 이벤트 편집 워크플로 -->
+
+**Flow:** User Click Event → Load Data → Populate Form → Modify → Validate → Save
+
+**Key Points:**
+- editEvent populates all form fields from selected event
+- editing flag determines PUT vs POST
+- Same validation and save flow as creation
+
+### 3. Event Display Workflow
+<!-- 이벤트 표시 워크플로 -->
+
+**Flow:** Component Mount → Fetch Events → Filter by View → Search Filter → Render
+
+**Components:**
+- useEventOperations: API fetch and CRUD
+- useCalendarView: view/date management
+- useSearch: search filtering with useMemo
+- Rendering: Week/Month view with holidays
+
+### 4. Notification Workflow
+<!-- 알림 워크플로 -->
+
+**Flow:** Interval Check (1s) → Calculate Time Diff → Filter Upcoming → Create Notification → Display
+
+**Pattern:**
+- setInterval in useEffect with cleanup
+- getUpcomingEvents filters based on time and notificationTime
+- Creates notifications, tracks notified events
+
+### 5. Data Flow Patterns
+<!-- 데이터 흐름 패턴 -->
+
+**Unidirectional:** State → Props → UI → Events → State Update → Re-render
+
+**Hook Composition:**
+```
+App Component
+├── useEventForm (form state)
+├── useEventOperations (CRUD)
+├── useNotifications (notifications)
+├── useCalendarView (view/navigation)
+└── useSearch (filtering)
+```
+
+**State Strategy:**
+- Form State: Local in useEventForm
+- Events Data: Local in useEventOperations (fetched from API)
+- UI State: Local in App (dialogs)
+- Computed: useMemo in useSearch
+
+### 6. Error Handling Strategy
+<!-- 에러 처리 전략 -->
+
+**Levels:**
+1. Validation: Prevent API calls, inline errors
+2. API: try/catch, snackbar, console log
+3. UI Feedback: Always inform user
+
+### 7. Optimization Patterns
+<!-- 최적화 패턴 -->
+
+- useMemo: Prevents unnecessary filteredEvents recalculation
+- Conditional Rendering: Only show dialogs when needed
+- Potential: useCallback for handlers, debouncing for search
+
 ## Integration with Memory
 <!-- 세월이와의 통합 -->
 - Before creating any plan, ALWAYS check Memory for:

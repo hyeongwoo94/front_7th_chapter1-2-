@@ -61,6 +61,190 @@ const event: Event = {
 - **Refactoring Patterns**: Store effective refactoring techniques
 <!-- 리팩토링 패턴: 효과적인 리팩토링 기법 저장 -->
 
+---
+
+## Codebase Pattern Analysis (2025-10-27)
+<!-- 코드베이스 패턴 분석 (2025-10-27) -->
+
+### 1. Custom Hook Patterns
+<!-- 커스텀 훅 패턴 -->
+
+#### State Management Pattern
+<!-- 상태 관리 패턴 -->
+```typescript
+// Pattern: Multiple useState declarations with initialEvent support
+export const useEventForm = (initialEvent?: Event) => {
+  const [field, setField] = useState(initialEvent?.field || defaultValue);
+  // ... multiple state declarations
+  return { field, setField, /* ... */ };
+};
+```
+
+**Key Characteristics:**
+- Accept optional initial value parameter
+- Provide both state and setter in return object
+- Group related state (e.g., form fields, errors)
+- Use type definitions for complex state (e.g., `TimeErrorRecord`)
+
+#### Effect Hook Pattern
+<!-- 이펙트 훅 패턴 -->
+```typescript
+// Pattern: useEffect with cleanup for intervals/subscriptions
+useEffect(() => {
+  const interval = setInterval(checkUpcomingEvents, 1000);
+  return () => clearInterval(interval);
+}, [dependencies]);
+```
+
+**Used in:** `useNotifications`, `useCalendarView`
+
+#### Computed Value Pattern
+<!-- 계산된 값 패턴 -->
+```typescript
+// Pattern: useMemo for expensive computations
+const filteredEvents = useMemo(() => {
+  return getFilteredEvents(events, searchTerm, currentDate, view);
+}, [events, searchTerm, currentDate, view]);
+```
+
+**Used in:** `useSearch`
+
+### 2. Utility Function Patterns
+<!-- 유틸리티 함수 패턴 -->
+
+#### Date Manipulation Pattern
+<!-- 날짜 조작 패턴 -->
+```typescript
+// Pattern: Pure functions for date calculations
+export function getDaysInMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
+export function getWeekDates(date: Date): Date[] {
+  // Loop-based date generation
+  const weekDates = [];
+  for (let i = 0; i < 7; i++) {
+    const nextDate = new Date(sunday);
+    nextDate.setDate(sunday.getDate() + i);
+    weekDates.push(nextDate);
+  }
+  return weekDates;
+}
+```
+
+**Characteristics:**
+- Pure functions (no side effects)
+- Single responsibility
+- Clear naming (verb + noun)
+- JSDocs for complex logic
+
+#### Filtering/Transformation Pattern
+<!-- 필터링/변환 패턴 -->
+```typescript
+// Pattern: filter + map chains for data transformation
+const upcomingEvents = events.filter((event) => {
+  // filtering logic
+}).map((event) => ({
+  id: event.id,
+  message: createNotificationMessage(event),
+}));
+```
+
+**Used in:** `useNotifications`, `eventUtils`, `notificationUtils`
+
+#### Validation Pattern
+<!-- 검증 패턴 -->
+```typescript
+// Pattern: Return typed validation result objects
+export function getTimeErrorMessage(start: string, end: string): TimeValidationResult {
+  if (!start || !end) {
+    return { startTimeError: null, endTimeError: null };
+  }
+  // validation logic
+  return { startTimeError: 'message', endTimeError: 'message' };
+}
+```
+
+### 3. API/Async Patterns
+<!-- API/비동기 패턴 -->
+
+#### Fetch Pattern with Error Handling
+<!-- 에러 처리가 있는 패치 패턴 -->
+```typescript
+const fetchEvents = async () => {
+  try {
+    const response = await fetch('/api/events');
+    if (!response.ok) {
+      throw new Error('Failed to fetch events');
+    }
+    const { events } = await response.json();
+    setEvents(events);
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    enqueueSnackbar('이벤트 로딩 실패', { variant: 'error' });
+  }
+};
+```
+
+**Characteristics:**
+- try/catch for error handling
+- Response ok check
+- User feedback via snackbar
+- State update after success
+
+#### Conditional HTTP Methods
+<!-- 조건부 HTTP 메서드 -->
+```typescript
+let response;
+if (editing) {
+  response = await fetch(`/api/events/${id}`, { method: 'PUT', /* ... */ });
+} else {
+  response = await fetch('/api/events', { method: 'POST', /* ... */ });
+}
+```
+
+### 4. TypeScript Patterns
+<!-- 타입스크립트 패턴 -->
+
+#### Type Definition
+<!-- 타입 정의 -->
+```typescript
+// Pattern: Union types for state
+type RepeatType = 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+// Pattern: Record for object types
+type TimeErrorRecord = Record<'startTimeError' | 'endTimeError', string | null>;
+
+// Pattern: Interface extension
+export interface Event extends EventForm {
+  id: string;
+}
+```
+
+#### Optional Chaining & Nullish Coalescing
+<!-- 옵셔널 체이닝 & Nullish 병합 -->
+```typescript
+const [title, setTitle] = useState(initialEvent?.title || '');
+const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
+```
+
+### 5. Naming Conventions
+<!-- 네이밍 규칙 -->
+
+- **Hooks:** `use[Feature]` (e.g., `useEventForm`, `useNotifications`)
+- **Utilities:** `[verb][Noun]` (e.g., `getWeekDates`, `formatMonth`)
+- **Components:** PascalCase (e.g., `App`)
+- **Constants:** UPPER_CASE for fixed values, camelCase for computed
+- **Handlers:** `handle[Action]` (e.g., `handleStartTimeChange`)
+
+### 6. Code Organization Patterns
+<!-- 코드 구성 패턴 -->
+
+- **Imports:** External libs → Types → Utils → Components
+- **Hook Structure:** State declarations → Derived state → Handlers → Effects → Return
+- **Utility Files:** Pure functions grouped by domain (date, event, notification)
+- **Single Responsibility:** Each file/function has one clear purpose
+
 ## Integration with Memory
 <!-- 세월이와의 통합 -->
 - Before implementing ANY code, ALWAYS check Memory for:

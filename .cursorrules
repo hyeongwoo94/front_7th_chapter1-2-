@@ -42,3 +42,10 @@ name="설정"
 2. 영어 답변에 한국어 해석을 주석으로 추가한다.
 3. agents 폴더 내의 people 폴더에 있는 역할별 파일들을 활용하여 체계적인 작업을 수행한다.
 4. people 폴더 문서 이중언어 규칙: `src/.cursor/agents/people/*.md` 파일은 본문을 영어로 작성하고, 각 영어 제목/문장/불릿 바로 다음 줄에 한국어 해석만 바로 HTML 주석(`<!-- ... -->`)으로 적는다. "한글 해석:" 같은 프리픽스는 사용하지 않는다.
+5. 모든 코드 작성 시 `.prettierrc`의 포맷팅 규칙을 준수한다.
+<!-- When writing all code, follow the formatting rules in `.prettierrc`. -->
+   - Single quotes (singleQuote: true)
+   - Semicolons (semi: true)
+   - 2-space indentation (tabWidth: 2)
+   - Trailing commas for ES5 (trailingComma: 'es5')
+   - Arrow function parentheses always (arrowParens: 'always')

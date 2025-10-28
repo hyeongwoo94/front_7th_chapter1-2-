@@ -231,9 +231,320 @@ npx husky install
 npx husky add .husky/pre-commit "npm run lint"
 ```
 
+## Critical Bug Patterns from Recent Fixes (2025-10-28)
+<!-- 최근 수정에서 발견된 치명적 버그 패턴 (2025-10-28) -->
+
+### 5. Implementation vs Integration Gap
+<!-- 구현 vs 통합 격차 -->
+
+**Problem**: Function implemented and tested, but not integrated with UI
+<!-- 문제: 함수를 구현하고 테스트했지만 UI와 통합하지 않음 -->
+
+**Example**:
+<!-- 예시: -->
+```typescript
+// ✅ Step 1: Implemented
+function generateRecurringEvents(event) { /* ... */ }
+
+// ✅ Step 2: Tested (16 tests passing)
+describe('generateRecurringEvents', () => { /* ... */ });
+
+// ❌ Step 3: MISSING - Not called from UI/hooks!
+// User creates recurring event → Only single event saved
+```
+
+**Prevention Checklist**:
+<!-- 예방 체크리스트: -->
+- [ ] Function implemented?
+<!-- 함수 구현 완료? -->
+- [ ] Unit tests passing?
+<!-- 단위 테스트 통과? -->
+- [ ] **Function called from actual code path?** ⭐
+<!-- 실제 코드 경로에서 함수 호출? ⭐ -->
+- [ ] Integration test verifies end-to-end flow?
+<!-- 통합 테스트로 전체 흐름 검증? -->
+
+**Fix Pattern**:
+<!-- 수정 패턴: -->
+```typescript
+// Hook/Component should call the utility
+const saveEvent = async (eventData) => {
+  if (eventData.repeat.type !== 'none') {
+    // ⭐ Integration: Call the implemented function
+    const events = generateRecurringEvents(eventData);
+    await fetch('/api/events-list', { body: JSON.stringify({ events }) });
+  }
+};
+```
+
+### 6. Date Overflow Filtering (Month-End Dates)
+<!-- 날짜 오버플로우 필터링 (월말 날짜) -->
+
+**Problem**: JavaScript Date auto-adjusts invalid dates (Feb 31 → Mar 3)
+<!-- 문제: JavaScript Date가 잘못된 날짜를 자동 조정 (2월 31일 → 3월 3일) -->
+
+**Wrong Approach** (Adjust to last day):
+<!-- 잘못된 접근 (마지막 날로 조정): -->
+```typescript
+// ❌ User expects: Only show on 31st days
+nextDate.setDate(31);
+if (nextDate.getMonth() !== targetMonth) {
+  nextDate.setDate(0);  // Set to last day of month (28, 30)
+}
+// Result: Shows on Feb 28, Apr 30 (user doesn't want this!)
+```
+
+**Correct Approach** (Filter by exact day):
+<!-- 올바른 접근 (정확한 날짜로 필터링): -->
+```typescript
+// ✅ Allow overflow, then filter
+nextDate.setDate(31);  // May overflow to next month
+const shouldAdd = nextDate.getDate() === 31;  // Only add if still 31st
+if (shouldAdd) {
+  events.push(event);
+}
+// Result: Only shows on months with 31 days ✅
+```
+
+**Key Principle**:
+<!-- 핵심 원칙: -->
+> Calculate from start date each time, not from previous result
+<!-- 이전 결과가 아닌 시작 날짜에서 매번 계산 -->
+
+```typescript
+// ❌ Cascading errors
+for (let i = 0; i < count; i++) {
+  currentDate = getNextOccurrence(currentDate, ...);  // Error accumulates
+}
+
+// ✅ Independent calculation
+for (let i = 0; i < count; i++) {
+  currentDate = getMonthlyOccurrence(startDate, i, interval);  // Clean each time
+}
+```
+
+### 7. Virtual vs Persistent ID Management
+<!-- 가상 ID vs 영구 ID 관리 -->
+
+**Problem**: Using client-generated temporary IDs for server operations
+<!-- 문제: 클라이언트가 생성한 임시 ID를 서버 작업에 사용 -->
+
+**Pattern**: When displaying expanded data (1→N), track original source
+<!-- 패턴: 확장된 데이터 표시 시 (1→N) 원본 출처 추적 -->
+
+**Bad Example**:
+<!-- 나쁜 예: -->
+```typescript
+// Display expanded events with temp IDs
+const expandedEvents = [
+  { id: "temp-1", date: "2025-01-31", title: "Meeting" },
+  { id: "temp-2", date: "2025-03-31", title: "Meeting" },
+];
+
+// ❌ User edits temp-2, try to save with temp ID
+PUT /api/events/temp-2  // 404 Not Found!
+```
+
+**Good Example**:
+<!-- 좋은 예: -->
+```typescript
+// ✅ Track original ID in metadata
+const expandedEvents = [
+  { 
+    id: "temp-1", 
+    date: "2025-01-31",
+    repeat: { 
+      originalEventId: "db-123",  // ⭐ Track source
+      originalDate: "2025-01-31"   // ⭐ Track base date
+    }
+  },
+  { 
+    id: "temp-2", 
+    date: "2025-03-31",
+    repeat: { 
+      originalEventId: "db-123",  // ⭐ Same source
+      originalDate: "2025-01-31"
+    }
+  },
+];
+
+// User edits temp-2
+const updateId = event.repeat?.originalEventId || event.id;
+PUT /api/events/db-123  // ✅ Success!
+```
+
+**Metadata Tracking Pattern**:
+<!-- 메타데이터 추적 패턴: -->
+```typescript
+interface ExpandedData {
+  id: string;              // Virtual ID (for display)
+  data: any;               // Expanded data
+  metadata: {
+    originalId: string;    // Source ID (for updates)
+    originalValue: any;    // Base value (for consistency)
+  };
+}
+```
+
+### 8. Nested Object Spread - Metadata Loss
+<!-- 중첩 객체 Spread - 메타데이터 손실 -->
+
+**Problem**: Spreading object but re-creating nested object loses metadata
+<!-- 문제: 객체 spread 하지만 중첩 객체 재생성으로 메타데이터 손실 -->
+
+**Bad Pattern**:
+<!-- 나쁜 패턴: -->
+```typescript
+// ❌ Removes only id, but nested object still has metadata
+const { id, ...eventWithoutId } = event;
+
+const updateData = {
+  ...eventWithoutId,  // Contains repeat: { originalEventId, ... }
+  repeat: {           // New object overwrites, but...
+    type: formType,
+    interval: formInterval
+  }
+};
+
+// Problem: Object spread order can cause unexpected behavior
+// eventWithoutId.repeat has originalEventId
+// Then we set repeat again → May or may not override completely
+```
+
+**Good Pattern**:
+<!-- 좋은 패턴: -->
+```typescript
+// ✅ Explicitly remove BOTH id AND nested object
+const { id, repeat, ...cleanData } = event;
+
+const updateData = {
+  ...cleanData,       // No repeat object!
+  repeat: {           // Completely clean new object
+    type: formType,
+    interval: formInterval
+  }
+};
+```
+
+**Rule**:
+<!-- 규칙: -->
+> When overriding nested object, explicitly remove it from spread first
+<!-- 중첩 객체를 override할 때, spread에서 먼저 명시적으로 제거 -->
+
+### 9. UI Layer Metadata Preservation
+<!-- UI 레이어 메타데이터 보존 -->
+
+**Problem**: UI creates new event object from form data, losing metadata
+<!-- 문제: UI가 폼 데이터로 새 이벤트 객체 생성 시 메타데이터 손실 -->
+
+**Bad Pattern** (Form-to-Object Direct Mapping):
+<!-- 나쁜 패턴 (폼→객체 직접 매핑): -->
+```typescript
+// ❌ Creates brand new object from form fields
+const eventData = {
+  id: editingEvent ? editingEvent.id : undefined,  // Only copies ID
+  title: formTitle,
+  date: formDate,
+  repeat: {                    // Brand new repeat object!
+    type: formRepeatType,      // Metadata lost!
+    interval: formInterval
+  }
+};
+
+// Result: repeat.originalEventId is gone!
+saveEvent(eventData);  // Will fail to find original event
+```
+
+**Good Pattern** (Conditional Preservation):
+<!-- 좋은 패턴 (조건부 보존): -->
+```typescript
+// ✅ Editing: Spread original event, then override with form data
+const eventData = editingEvent
+  ? {
+      ...editingEvent,          // ⭐ Preserves ALL metadata
+      title: formTitle,          // Override with form
+      date: formDate,
+      repeat: {
+        ...editingEvent.repeat,  // ⭐ Preserve repeat metadata
+        type: formRepeatType,    // Override with form
+        interval: formInterval
+      }
+    }
+  : {
+      // New event: No metadata needed
+      title: formTitle,
+      date: formDate,
+      repeat: { type: formRepeatType, interval: formInterval }
+    };
+
+saveEvent(eventData);  // ✅ Metadata preserved!
+```
+
+**3-Link Metadata Chain**:
+<!-- 3단계 메타데이터 체인: -->
+```
+1. Utils: Inject metadata when expanding
+   generateRecurringEvents → adds originalEventId
+
+2. UI: Preserve metadata when editing ⭐ (Common mistake here!)
+   App.tsx → must spread editingEvent
+
+3. Hooks: Utilize metadata when saving
+   useEventOperations → extract originalEventId for API call
+```
+
+**Break any link → Entire feature fails!**
+<!-- 한 단계라도 끊어지면 전체 기능 실패! -->
+
+### 10. Server ID Protection (Double Defense)
+<!-- 서버 ID 보호 (이중 방어) -->
+
+**Problem**: Client may accidentally send virtual ID in request body
+<!-- 문제: 클라이언트가 실수로 요청 body에 가상 ID 전송 -->
+
+**Defense Strategy**: Protect at BOTH client and server
+<!-- 방어 전략: 클라이언트와 서버 모두에서 보호 -->
+
+**Client Side** (Remove ID from body):
+<!-- 클라이언트 측 (body에서 ID 제거): -->
+```typescript
+// ✅ Never send ID in request body
+const { id, ...dataWithoutId } = eventData;
+
+fetch(`/api/events/${persistentId}`, {
+  method: 'PUT',
+  body: JSON.stringify(dataWithoutId)  // No ID!
+});
+```
+
+**Server Side** (Ignore body ID, use URL ID):
+<!-- 서버 측 (body ID 무시, URL ID 사용): -->
+```javascript
+// ✅ Protect ID even if client sends it
+app.put('/api/events/:id', (req, res) => {
+  const id = req.params.id;  // From URL
+  const { id: _bodyId, ...bodyWithoutId } = req.body;  // Remove from body
+  
+  data[index] = {
+    ...existingData,
+    ...bodyWithoutId,  // No ID here
+    id                 // ⭐ Always use URL ID
+  };
+});
+```
+
+**Why Double Defense?**
+<!-- 왜 이중 방어? -->
+1. Client-side removal prevents accidental sends (human error)
+<!-- 클라이언트 제거는 실수로 전송 방지 (사람 실수) -->
+2. Server-side protection prevents malicious/buggy clients (security)
+<!-- 서버 보호는 악의적/버그있는 클라이언트 방지 (보안) -->
+
 ## Key Takeaways
 <!-- 핵심 요약 -->
 
+### Coding Standards
+<!-- 코딩 표준 -->
 - ✅ Always use LF line endings (not CRLF)
 <!-- LF 줄바꿈 사용 (CRLF 아님) -->
 - ✅ One blank line between import groups
@@ -244,8 +555,28 @@ npx husky add .husky/pre-commit "npm run lint"
 <!-- 파일 끝에 정확히 한 줄의 개행 -->
 - ✅ Wrap functions in useCallback when used in useEffect
 <!-- useEffect에서 사용되는 함수는 useCallback으로 감싸기 -->
+
+### Feature Implementation
+<!-- 기능 구현 -->
+- ✅ Implement → Test → **Integrate** → Verify end-to-end
+<!-- 구현 → 테스트 → 통합 → 전체 흐름 검증 -->
+- ✅ Date calculations: Always from start, not from previous result
+<!-- 날짜 계산: 항상 시작점에서, 이전 결과에서가 아님 -->
+- ✅ Expanded data: Track original with metadata
+<!-- 확장된 데이터: 메타데이터로 원본 추적 -->
+- ✅ Nested object override: Remove from spread first
+<!-- 중첩 객체 override: spread에서 먼저 제거 -->
+- ✅ Edit mode: Spread original, then override with form
+<!-- 수정 모드: 원본 spread, 그 다음 폼으로 override -->
+- ✅ ID protection: Remove at client, ignore at server
+<!-- ID 보호: 클라이언트에서 제거, 서버에서 무시 -->
+
+### Pre-Commit
+<!-- 커밋 전 -->
 - ✅ Run `npm run lint` before committing
 <!-- 커밋 전에 `npm run lint` 실행 -->
+- ✅ Run `npm test -- --run` to verify integration
+<!-- `npm test -- --run` 실행하여 통합 검증 -->
 - ✅ Fix CRLF issues immediately when they appear
 <!-- CRLF 문제가 나타나면 즉시 수정 -->
 

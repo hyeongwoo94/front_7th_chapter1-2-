@@ -30,6 +30,8 @@ import {
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
+import Modal from './components/Modal';
+
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
@@ -104,6 +106,7 @@ function App() {
 
   const [isOverlapDialogOpen, setIsOverlapDialogOpen] = useState(false);
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -488,7 +491,12 @@ function App() {
         </Stack>
 
         <Stack flex={1} spacing={5}>
-          <Typography variant="h4">일정 보기</Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="h4">일정 보기</Typography>
+            <Button variant="outlined" onClick={() => setIsModalOpen(true)}>
+              모달 열기
+            </Button>
+          </Stack>
 
           <Stack direction="row" spacing={2} justifyContent="space-between" alignItems="center">
             <IconButton aria-label="Previous" onClick={() => navigate('prev')}>
@@ -631,6 +639,8 @@ function App() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
       {notifications.length > 0 && (
         <Stack position="fixed" top={16} right={16} spacing={2} alignItems="flex-end">

@@ -645,6 +645,15 @@ import { Button } from '@mui/material';  // Wrong order
   - Component tests: `src/__tests__/components/*.spec.tsx`
   - Integration tests: `src/__tests__/*.spec.tsx`
 
+- **Test file naming convention**:
+  <!-- 테스트 파일 네이밍 컨벤션: -->
+  - DO NOT use `easy.` or `medium.` prefixes when creating new test files
+  <!-- 새 테스트 파일 생성 시 `easy.`나 `medium.` 접두사를 사용하지 않음 -->
+  - Use descriptive names directly (e.g., `dateUtils.spec.ts`, not `easy.dateUtils.spec.ts`)
+  <!-- 직접적인 설명 이름 사용 (예: `easy.dateUtils.spec.ts`가 아닌 `dateUtils.spec.ts`) -->
+  - Existing files with prefixes should remain unchanged
+  <!-- 접두사가 있는 기존 파일은 변경하지 않음 -->
+
 - **Documentation location**:
   <!-- 문서 위치: -->
   - Guides: `src/.cursor/agents/doc/`

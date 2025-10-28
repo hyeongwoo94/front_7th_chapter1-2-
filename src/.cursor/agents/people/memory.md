@@ -135,6 +135,8 @@ The Memory (세월이) is responsible for remembering all commands issued by the
 <!-- 리팩토링 기법: 테스트를 유지하는 효과적인 리팩토링 접근 -->
 - **Test Organization**: How tests are structured for maintainability
 <!-- 테스트 조직: 유지보수성을 위한 테스트 구조 -->
+- **Test Naming Convention**: DO NOT use `easy.` or `medium.` prefixes when creating new test files. Use descriptive names directly (e.g., `dateUtils.spec.ts`, not `easy.dateUtils.spec.ts`). Existing files with prefixes should remain unchanged.
+<!-- 테스트 네이밍 컨벤션: 새 테스트 파일 생성 시 `easy.`나 `medium.` 접두사를 사용하지 않습니다. 직접적인 설명 이름을 사용합니다 (예: `easy.dateUtils.spec.ts`가 아닌 `dateUtils.spec.ts`). 접두사가 있는 기존 파일은 변경하지 않습니다. -->
 
 ## Recurring Events Learning Points
 <!-- 반복 일정 학습 포인트 -->
@@ -146,6 +148,176 @@ The Memory (세월이) is responsible for remembering all commands issued by the
 <!-- 성능 최적화: 효율적인 반복 일정 생성 -->
 - **Data Model Successes**: Effective data structures for recurring events
 <!-- 데이터 모델 성공: 반복 일정을 위한 효과적인 데이터 구조 -->
+
+## Memory Maintenance Patterns
+<!-- 메모리 유지보수 패턴 -->
+
+### Pattern 1: Dynamic Memory Home Cleanup (Redundancy Detection)
+<!-- 패턴 1: 동적 메모리 홈 정리 (중복 감지) -->
+
+**Trigger**: Dynamic threshold based on last cleanup result
+<!-- 트리거: 마지막 정리 결과에 따른 동적 임계값 -->
+
+**Initial Threshold**: 1000 lines
+<!-- 초기 임계값: 1000줄 -->
+
+**Threshold Adjustment Rule**:
+<!-- 임계값 조정 규칙: -->
+- If duplicates found and removed → Next threshold stays at 1000 lines
+  <!-- 중복 발견 및 제거 시 → 다음 임계값은 1000줄 유지 -->
+- If NO duplicates found → Next threshold increases by 1000 lines
+  <!-- 중복 없음 시 → 다음 임계값 1000줄 증가 -->
+  - 1st cleanup (1000 lines): No duplicates → Next at 2000 lines
+  <!-- 1차 정리 (1000줄): 중복 없음 → 다음은 2000줄 -->
+  - 2nd cleanup (2000 lines): No duplicates → Next at 3000 lines
+  <!-- 2차 정리 (2000줄): 중복 없음 → 다음은 3000줄 -->
+  - 3rd cleanup (3000 lines): No duplicates → Next at 4000 lines
+  <!-- 3차 정리 (3000줄): 중복 없음 → 다음은 4000줄 -->
+
+**Process**:
+<!-- 프로세스: -->
+1. **Detect Redundancy**: Identify duplicate patterns across sections
+   <!-- 중복 감지: 섹션 간 중복 패턴 식별 -->
+   - Same problem explained multiple times
+   <!-- 같은 문제가 여러 번 설명됨 -->
+   - Similar examples repeated
+   <!-- 유사한 예시 반복 -->
+   - Overlapping checklists
+   <!-- 겹치는 체크리스트 -->
+
+2. **Check If Duplicates Exist**:
+   <!-- 중복 존재 여부 확인: -->
+   - If NO duplicates → Skip cleanup, increase threshold
+   <!-- 중복 없음 → 정리 건너뛰기, 임계값 증가 -->
+   - If duplicates found → Proceed with cleanup
+   <!-- 중복 발견 → 정리 진행 -->
+
+3. **Consolidate Content** (Only if duplicates found):
+   <!-- 내용 통합 (중복 발견 시만): -->
+   - Combine duplicate patterns into single section
+   <!-- 중복 패턴을 단일 섹션으로 결합 -->
+   - Keep only 1-2 examples per pattern (Good/Bad)
+   <!-- 패턴당 1-2개 예시만 유지 (Good/Bad) -->
+   - Unify checklists
+   <!-- 체크리스트 통합 -->
+
+4. **Extract Core Patterns** (Only if duplicates found):
+   <!-- 핵심 패턴 추출 (중복 발견 시만): -->
+   - Keep: Problem → Rule → Code Example → Checklist
+   <!-- 유지: 문제 → 규칙 → 코드 예시 → 체크리스트 -->
+   - Remove: Long background stories, multiple scenarios, detailed explanations
+   <!-- 제거: 긴 배경 스토리, 여러 시나리오, 상세 설명 -->
+
+5. **Reorganize by Category** (Only if duplicates found):
+   <!-- 카테고리별 재구성 (중복 발견 시만): -->
+   - TypeScript Patterns
+   - UI/UX Patterns
+   - Implementation Patterns
+   - Data/Architecture Patterns
+   - Common Bug Patterns
+
+6. **Add Quick Reference** (Only if duplicates found):
+   <!-- 빠른 참조 추가 (중복 발견 시만): -->
+   - Create Common Bug Patterns section
+   <!-- 일반적인 버그 패턴 섹션 생성 -->
+   - Symptom → Cause → Fix format
+   <!-- 증상 → 원인 → 해결책 형식 -->
+
+**Goal**: Remove ONLY duplicates, not reduce to arbitrary size
+<!-- 목표: 중복만 제거, 임의의 크기로 축소하지 않음 -->
+
+**Example Scenarios**:
+<!-- 예시 시나리오: -->
+
+```
+Scenario 1: Duplicates Found
+Before: 2681 lines (many duplicates)
+After: 400 lines (duplicates removed)
+Result: 85% reduction
+Next threshold: 1000 lines (reset)
+
+Scenario 2: No Duplicates
+Current: 1200 lines (no duplicates)
+Action: Skip cleanup
+Next threshold: 2000 lines (increased)
+
+Scenario 3: Still No Duplicates
+Current: 2100 lines (no duplicates)
+Action: Skip cleanup
+Next threshold: 3000 lines (increased)
+```
+
+### Pattern 2: Concise History Documentation
+<!-- 패턴 2: 간결한 히스토리 문서화 -->
+
+**Rule**: History files should contain ONLY essential information, not full responses
+<!-- 규칙: 히스토리 파일은 전체 답변이 아닌 핵심 정보만 포함해야 함 -->
+
+**Format**:
+<!-- 형식: -->
+```markdown
+질문 (원본):
+YYYY-MM-DD
+
+질문: [사용자 질문]
+
+답변:
+
+# [핵심 작업 제목]
+
+## 🎯 변경 사항
+- **Before**: [이전 상태 요약]
+- **After**: [이후 상태 요약]
+- **결과**: [핵심 결과]
+
+## 📋 주요 작업
+1. [작업 1 한 줄 요약]
+2. [작업 2 한 줄 요약]
+3. [작업 3 한 줄 요약]
+
+## 📂 수정 파일
+- `파일경로` (변경 내용 한 줄)
+- `파일경로` (변경 내용 한 줄)
+
+## ✅ 결과
+- [핵심 성과 1]
+- [핵심 성과 2]
+```
+
+**What to EXCLUDE**:
+<!-- 제외할 내용: -->
+- ❌ Full code examples (use "패턴 적용" instead)
+<!-- 전체 코드 예시 (대신 "패턴 적용" 사용) -->
+- ❌ Detailed explanations (link to files instead)
+<!-- 상세 설명 (대신 파일 링크) -->
+- ❌ Multiple examples (one is enough)
+<!-- 여러 예시 (하나면 충분) -->
+- ❌ Step-by-step processes (summary only)
+<!-- 단계별 프로세스 (요약만) -->
+- ❌ Repetitive content (avoid redundancy)
+<!-- 반복적인 내용 (중복 방지) -->
+
+**What to INCLUDE**:
+<!-- 포함할 내용: -->
+- ✅ Question and core answer summary
+<!-- 질문과 핵심 답변 요약 -->
+- ✅ Key changes (Before/After)
+<!-- 주요 변경사항 (Before/After) -->
+- ✅ Modified files list
+<!-- 수정된 파일 목록 -->
+- ✅ Essential results/outcomes
+<!-- 핵심 결과/성과 -->
+- ✅ Key learnings (if any)
+<!-- 주요 학습 내용 (있는 경우) -->
+
+**Target**: History files should be 50-100 lines max
+<!-- 목표: 히스토리 파일은 최대 50-100줄 -->
+
+**Example**:
+```
+Bad: 1029_3.md (500+ lines with full explanations)
+Good: 50-100 lines with key points only
+```
 
 ## Success Metrics
 <!-- 성공 지표 -->
@@ -163,3 +335,7 @@ The Memory (세월이) is responsible for remembering all commands issued by the
 <!-- 지식 베이스 활용도 -->
 - Context relevance and usefulness
 <!-- 맥락의 적절성과 유용성 -->
+- Memory file size maintenance (memoryHome.md < 1000 lines)
+<!-- 메모리 파일 크기 유지 (memoryHome.md < 1000줄) -->
+- History documentation conciseness (< 100 lines per file)
+<!-- 히스토리 문서화 간결성 (파일당 < 100줄) -->

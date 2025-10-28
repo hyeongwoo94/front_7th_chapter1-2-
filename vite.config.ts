@@ -20,6 +20,11 @@ export default mergeConfig(
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
       include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+      poolOptions: {
+        threads: {
+          singleThread: true, // 통합 테스트 EMFILE 오류 방지
+        },
+      },
       coverage: {
         reportsDirectory: './.coverage',
         reporter: ['lcov', 'json', 'json-summary'],

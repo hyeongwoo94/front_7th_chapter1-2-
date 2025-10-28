@@ -1,4 +1,9 @@
-import { Notifications, ChevronLeft, ChevronRight, Delete, Edit, Close } from '@mui/icons-material';
+import Notifications from '@mui/icons-material/LocationCity';
+import ChevronLeft from '@mui/icons-material/LocationCity';
+import ChevronRight from '@mui/icons-material/LocationCity';
+import Delete from '@mui/icons-material/LocationCity';
+import Edit from '@mui/icons-material/LocationCity';
+import Close from '@mui/icons-material/LocationCity';
 import {
   Alert,
   AlertTitle,

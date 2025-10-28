@@ -178,3 +178,195 @@ Provides: Historical quality patterns, common issues, past review feedback
 Provides: Comprehensive overview of all past commands, decisions, and outcomes
 <!-- 제공: 과거 모든 명령, 결정, 결과에 대한 포괄적인 개요 -->
 
+---
+
+## Stored Learning: Optional Chaining with TypeScript (2025-10-28)
+<!-- 저장된 학습: TypeScript의 Optional Chaining (2025-10-28) -->
+
+### Issue Discovered by Manager
+<!-- 관리자가 발견한 이슈 -->
+
+**File**: `src/hooks/useEventForm.ts`
+<!-- 파일: `src/hooks/useEventForm.ts` -->
+
+**Error**: Line 18 - `'initialEvent' is possibly 'undefined'.`
+<!-- 오류: 18번째 줄 - `'initialEvent'는 'undefined'일 수 있습니다.` -->
+
+### Problem Pattern
+<!-- 문제 패턴 -->
+
+**Inconsistent Optional Chaining**:
+<!-- 일관되지 않은 Optional Chaining: -->
+
+```typescript
+// ❌ WRONG - Inconsistent optional chaining
+const [isRepeating, setIsRepeating] = useState(initialEvent?.repeat.type !== 'none');
+const [repeatType, setRepeatType] = useState<RepeatType>(
+  initialEvent?.repeat.type !== 'none' ? initialEvent.repeat.type : 'daily'  // Error here!
+);
+```
+
+**Issue**: In conditional expression, `initialEvent.repeat.type` is accessed without optional chaining even though `initialEvent` can be undefined.
+<!-- 문제: 조건부 표현식에서 `initialEvent`가 undefined일 수 있는데 optional chaining 없이 `initialEvent.repeat.type`에 접근함 -->
+
+### Solution Pattern
+<!-- 해결 패턴 -->
+
+**Explicit Existence Check**:
+<!-- 명시적 존재 확인: -->
+
+```typescript
+// ✅ CORRECT - Explicit existence check with &&
+const [repeatType, setRepeatType] = useState<RepeatType>(
+  initialEvent && initialEvent.repeat.type !== 'none' ? initialEvent.repeat.type : 'daily'
+);
+```
+
+### Why This Works
+<!-- 왜 이것이 작동하는가 -->
+
+1. **TypeScript Type Narrowing**: Using `initialEvent &&` explicitly tells TypeScript that `initialEvent` exists in the true branch
+   <!-- TypeScript 타입 좁히기: `initialEvent &&`를 사용하면 TypeScript에 명시적으로 true 분기에서 `initialEvent`가 존재함을 알림 -->
+
+2. **Short-circuit Evaluation**: If `initialEvent` is undefined/null, expression immediately returns falsy without evaluating the rest
+   <!-- 단락 평가: `initialEvent`가 undefined/null이면 나머지 평가 없이 즉시 falsy 반환 -->
+
+3. **Type Safety**: Prevents runtime errors from accessing properties on undefined
+   <!-- 타입 안전성: undefined에서 속성 접근으로 인한 런타임 오류 방지 -->
+
+### Learning Points for Manager
+<!-- 관리자를 위한 학습 포인트 -->
+
+1. **Watch for Optional Chaining Consistency**: Check that optional chaining is used consistently throughout conditional expressions
+   <!-- Optional Chaining 일관성 확인: 조건부 표현식 전체에서 optional chaining이 일관되게 사용되는지 확인 -->
+
+2. **TypeScript Cannot Infer**: TypeScript cannot infer that `initialEvent?.repeat.type !== 'none'` guarantees `initialEvent` exists in the true branch
+   <!-- TypeScript는 추론할 수 없음: `initialEvent?.repeat.type !== 'none'`이 true 분기에서 `initialEvent`의 존재를 보장한다고 TypeScript는 추론할 수 없음 -->
+
+3. **Use Explicit Checks**: For complex conditional expressions with optional parameters, use explicit existence checks (`initialEvent && ...`)
+   <!-- 명시적 체크 사용: 선택적 매개변수가 있는 복잡한 조건부 표현식의 경우 명시적 존재 확인 사용 -->
+
+4. **Lint Errors Are Critical**: TypeScript errors like "possibly undefined" indicate potential runtime crashes
+   <!-- Lint 오류는 중요함: "possibly undefined"와 같은 TypeScript 오류는 잠재적 런타임 충돌을 나타냄 -->
+
+### Code Review Checklist Addition
+<!-- 코드 리뷰 체크리스트 추가 -->
+
+- [ ] All optional parameters use consistent optional chaining or explicit existence checks
+  <!-- 모든 선택적 매개변수가 일관된 optional chaining 또는 명시적 존재 확인 사용 -->
+- [ ] Conditional expressions with optional objects use `&&` for type narrowing
+  <!-- 선택적 객체가 있는 조건부 표현식이 타입 좁히기를 위해 `&&` 사용 -->
+- [ ] No TypeScript "possibly undefined" errors in codebase
+  <!-- 코드베이스에 "possibly undefined" TypeScript 오류 없음 -->
+
+---
+
+## Stored Learning: UI Component Default Values (2025-10-28)
+<!-- 저장된 학습: UI 컴포넌트 기본값 (2025-10-28) -->
+
+### Principle for Planner
+<!-- 계획자를 위한 원칙 -->
+
+**Always specify default values for UI input components (Select, Checkbox, Radio, etc.)**
+<!-- UI 입력 컴포넌트(Select, Checkbox, Radio 등)에 항상 기본값 지정 -->
+
+### Why Default Values Matter
+<!-- 기본값이 중요한 이유 -->
+
+1. **Better UX**: Users can proceed faster without having to select every option
+   <!-- 더 나은 UX: 사용자가 모든 옵션을 선택하지 않아도 빠르게 진행 가능 -->
+
+2. **Common Use Cases**: Default to the most frequently used option
+   <!-- 일반적인 사용 사례: 가장 자주 사용되는 옵션을 기본값으로 설정 -->
+
+3. **Reduced Errors**: Users are less likely to forget required selections
+   <!-- 오류 감소: 사용자가 필수 선택을 잊을 가능성 감소 -->
+
+4. **Form Validation**: Having defaults prevents empty/undefined states
+   <!-- 폼 검증: 기본값이 있으면 빈/undefined 상태 방지 -->
+
+### Example from Recent Implementation
+<!-- 최근 구현 예시 -->
+
+**Context**: Adding repeat type selection UI
+<!-- 컨텍스트: 반복 유형 선택 UI 추가 -->
+
+**Options**: 매일 (daily), 매주 (weekly), 매월 (monthly), 매년 (yearly)
+<!-- 옵션: 매일 (daily), 매주 (weekly), 매월 (monthly), 매년 (yearly) -->
+
+**Initial Implementation**: No default value
+<!-- 초기 구현: 기본값 없음 -->
+
+**Issue**: When user checks "반복 일정", they must manually select repeat type
+<!-- 문제: 사용자가 "반복 일정"을 체크하면 수동으로 반복 유형 선택 필요 -->
+
+**Improved Implementation**: Default to '매일' (daily)
+<!-- 개선된 구현: 기본값을 '매일' (daily)로 설정 -->
+
+**Benefit**: Most common use case covered, users can change if needed
+<!-- 이점: 가장 일반적인 사용 사례 커버, 필요 시 사용자가 변경 가능 -->
+
+### Implementation Pattern
+<!-- 구현 패턴 -->
+
+```typescript
+// ✅ CORRECT - With default value
+const [repeatType, setRepeatType] = useState<RepeatType>('daily');
+
+// In form reset
+const resetForm = () => {
+  setRepeatType('daily');  // Reset to default
+};
+
+// In conditional render
+{isRepeating && (
+  <Select value={repeatType} onChange={...}>
+    <MenuItem value="daily">매일</MenuItem>  {/* This will be pre-selected */}
+    <MenuItem value="weekly">매주</MenuItem>
+    <MenuItem value="monthly">매월</MenuItem>
+    <MenuItem value="yearly">매년</MenuItem>
+  </Select>
+)}
+```
+
+### Planning Checklist for UI Components
+<!-- UI 컴포넌트 계획 체크리스트 -->
+
+When planning any UI component with user selection:
+<!-- 사용자 선택이 있는 UI 컴포넌트 계획 시: -->
+
+- [ ] Identify the most common/frequent use case
+  <!-- 가장 일반적/빈번한 사용 사례 식별 -->
+- [ ] Set that option as the default value
+  <!-- 해당 옵션을 기본값으로 설정 -->
+- [ ] Ensure default is set in initial state
+  <!-- 초기 상태에서 기본값 설정 확인 -->
+- [ ] Ensure default is restored in form reset
+  <!-- 폼 리셋 시 기본값 복원 확인 -->
+- [ ] Document why that specific default was chosen
+  <!-- 특정 기본값을 선택한 이유 문서화 -->
+
+### Component Types Requiring Defaults
+<!-- 기본값이 필요한 컴포넌트 유형 -->
+
+1. **Select/Dropdown**: First option or most common option
+   <!-- Select/Dropdown: 첫 번째 옵션 또는 가장 일반적인 옵션 -->
+
+2. **Radio Buttons**: Most common choice pre-selected
+   <!-- Radio Buttons: 가장 일반적인 선택 사항 미리 선택 -->
+
+3. **Checkboxes**: Consider default checked state for common scenarios
+   <!-- Checkboxes: 일반적인 시나리오에 대해 기본 체크 상태 고려 -->
+
+4. **Number Inputs**: Reasonable default (e.g., interval: 1, notification: 10 minutes)
+   <!-- Number Inputs: 합리적인 기본값 (예: interval: 1, notification: 10분) -->
+
+5. **Text Fields**: Empty string is acceptable, but consider placeholder or initial value
+   <!-- Text Fields: 빈 문자열 허용 가능하지만, placeholder 또는 초기값 고려 -->
+
+### Success Metric
+<!-- 성공 지표 -->
+
+**User can complete common tasks with minimal clicks/selections**
+<!-- 사용자가 최소 클릭/선택으로 일반 작업 완료 가능 -->
+

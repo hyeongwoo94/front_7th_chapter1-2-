@@ -36,8 +36,7 @@ import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';
 import { useNotifications } from './hooks/useNotifications.ts';
 import { useSearch } from './hooks/useSearch.ts';
-// import { Event, EventForm, RepeatType } from './types';
-import { Event, EventForm } from './types';
+import { Event, EventForm, RepeatType } from './types';
 import {
   formatDate,
   formatMonth,
@@ -50,6 +49,13 @@ import { findOverlappingEvents } from './utils/eventOverlap';
 import { getTimeErrorMessage } from './utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
+
+const repeatTypeOptions = [
+  { value: 'daily', label: '매일' },
+  { value: 'weekly', label: '매주' },
+  { value: 'monthly', label: '매월' },
+  { value: 'yearly', label: '매년' },
+];
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -78,11 +84,11 @@ function App() {
     isRepeating,
     setIsRepeating,
     repeatType,
-    // setRepeatType,
+    setRepeatType,
     repeatInterval,
-    // setRepeatInterval,
+    setRepeatInterval,
     repeatEndDate,
-    // setRepeatEndDate,
+    setRepeatEndDate,
     notificationTime,
     setNotificationTime,
     startTimeError,
@@ -422,6 +428,26 @@ function App() {
               label="반복 일정"
             />
           </FormControl>
+
+          {isRepeating && (
+            <FormControl fullWidth>
+              <FormLabel id="repeat-type-label">반복 유형</FormLabel>
+              <Select
+                id="repeat-type"
+                size="small"
+                value={repeatType}
+                onChange={(e) => setRepeatType(e.target.value as RepeatType)}
+                aria-labelledby="repeat-type-label"
+                aria-label="반복 유형"
+              >
+                {repeatTypeOptions.map((option) => (
+                  <MenuItem key={option.value} value={option.value} aria-label={`${option.label}-option`}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
 
           <FormControl fullWidth>
             <FormLabel htmlFor="notification">알림 설정</FormLabel>

@@ -36,31 +36,33 @@ Automatically execute the following rules for each conversation:
 1. Answer user's question
    <!-- 사용자의 질문에 답변 -->
 
-2. Save question and answer to `src/.cursor/agents/histroy/` folder
-   <!-- 질문과 답변을 `src/.cursor/agents/histroy/` 폴더에 저장 -->
+2. Save question and answer to `src/.cursor/agents/histroy/` folder with date-based folder structure
+   <!-- 질문과 답변을 날짜별 폴더 구조로 `src/.cursor/agents/histroy/` 폴더에 저장 -->
 
-3. **File naming rule**: `MMDD_i.md` (month-day_sequence)
-   <!-- 파일명 규칙: `MMDD_i.md` (월일_순번) -->
-   - Example: October 27th first file → `1027_1.md`
-   <!-- 예시: 10월 27일 첫 번째 파일 → `1027_1.md` -->
-   - Same day additional files increment sequence: `1027_2.md`, `1027_3.md`
-   <!-- 같은 날 추가 파일은 순번 증가: `1027_2.md`, `1027_3.md` -->
+3. **Folder and file naming rule**: `MMDD/MMDD_i.md` (date-folder/month-day_sequence)
+   <!-- 폴더 및 파일명 규칙: `MMDD/MMDD_i.md` (날짜폴더/월일_순번) -->
+   - Example: October 27th first file → `1027/1027_1.md`
+   <!-- 예시: 10월 27일 첫 번째 파일 → `1027/1027_1.md` -->
+   - Same day additional files increment sequence: `1027/1027_2.md`, `1027/1027_3.md`
+   <!-- 같은 날 추가 파일은 순번 증가: `1027/1027_2.md`, `1027/1027_3.md` -->
    - Each day starts from sequence 1 (resets when date changes)
    <!-- 매일 첫 파일은 항상 1번부터 시작 (날짜가 바뀌면 순번 리셋) -->
+   - **New date**: Automatically create new MMDD folder
+   <!-- 새 날짜: 자동으로 새 MMDD 폴더 생성 -->
 
-   **Auto-renumbering rule**: When a history file is deleted, automatically renumber remaining files
-   <!-- 자동 순번 재정렬 규칙: 히스토리 파일이 삭제되면 남은 파일들의 순번을 자동으로 재정렬 -->
-   - If `1028_3.md` is deleted, renumber: `1028_4.md` → `1028_3.md`, `1028_5.md` → `1028_4.md`
-   <!-- `1028_3.md`가 삭제되면: `1028_4.md` → `1028_3.md`, `1028_5.md` → `1028_4.md`로 재정렬 -->
-   - **Purpose**: Maintain sequential numbering without gaps for better readability
-   <!-- 목적: 가독성을 위해 빈 순번 없이 연속적인 번호 유지 -->
-   - **Process**: List all files for that date → Sort by sequence → Renumber starting from 1
-   <!-- 프로세스: 해당 날짜의 모든 파일 나열 → 순서대로 정렬 → 1번부터 순번 재부여 -->
+   **Auto-renumbering rule**: When a history file is deleted, automatically renumber remaining files in that date folder
+   <!-- 자동 순번 재정렬 규칙: 히스토리 파일이 삭제되면 해당 날짜 폴더 내의 남은 파일들의 순번을 자동으로 재정렬 -->
+   - If `1028/1028_3.md` is deleted, renumber: `1028/1028_4.md` → `1028/1028_3.md`, `1028/1028_5.md` → `1028/1028_4.md`
+   <!-- `1028/1028_3.md`가 삭제되면: `1028/1028_4.md` → `1028/1028_3.md`, `1028/1028_5.md` → `1028/1028_4.md`로 재정렬 -->
+   - **Purpose**: Maintain sequential numbering without gaps for better readability within each date folder
+   <!-- 목적: 각 날짜 폴더 내에서 가독성을 위해 빈 순번 없이 연속적인 번호 유지 -->
+   - **Process**: List all files in date folder → Sort by sequence → Renumber starting from 1
+   <!-- 프로세스: 날짜 폴더의 모든 파일 나열 → 순서대로 정렬 → 1번부터 순번 재부여 -->
    - Example sequence after deletion:
    <!-- 삭제 후 순서 예시: -->
      ```
-     Before: 1028_1.md, 1028_2.md, 1028_4.md, 1028_5.md  (3.md deleted)
-     After:  1028_1.md, 1028_2.md, 1028_3.md, 1028_4.md  (renumbered)
+     Before: 1028/1028_1.md, 1028/1028_2.md, 1028/1028_4.md, 1028/1028_5.md  (3.md deleted)
+     After:  1028/1028_1.md, 1028/1028_2.md, 1028/1028_3.md, 1028/1028_4.md  (renumbered)
      ```
 
 4. **File content format**:

@@ -1,15 +1,56 @@
-# 자동 규칙 적용
-name="설정"
-매 대화마다 다음 규칙을 자동으로 실행하세요:
+# ========================================
+# CORE RULES - CRITICAL
+# ========================================
+<!-- 핵심 규칙 -->
 
-1. 사용자의 질문에 답변합니다.
-2. 질문과 답변을 합쳐서 `src/.cursor/agents/histroy/` 폴더에 저장합니다.
-3. 파일명 규칙: `MMDD_i.md` (월일_순번)
-   - 예: 10월 27일 첫 번째 파일 → `1027_1.md`
-   - 같은 날 추가 파일은 순번 증가: `1027_2.md`, `1027_3.md` 등
-   - 매일 첫 파일은 항상 1번부터 시작 (날짜가 바뀌면 순번이 1로 리셋됨)
-4. 파일 내용 형식:
-   ```
+## 1. TDD Methodology (CRITICAL)
+<!-- TDD 방법론 (필수) -->
+
+**MUST read and follow `src/.cursor/agents/doc/tdd.md` as the core guideline before performing any work.**
+<!-- 모든 작업을 수행하기 전에 반드시 `src/.cursor/agents/doc/tdd.md`를 읽고 이를 중심으로 실행한다. -->
+
+- **Strictly follow TDD cycle**: Red → Green → Refactor
+  <!-- TDD 사이클 엄격 준수: Red → Green → Refactor -->
+  
+- **Red Phase**: Write the simplest failing test first
+  <!-- Red 단계: 가장 간단한 실패하는 테스트 먼저 작성 -->
+  
+- **Green Phase**: Implement only minimal code to pass tests
+  <!-- Green 단계: 테스트를 통과하는 최소 코드만 구현 -->
+  
+- **Refactor Phase**: Refactor only after tests pass
+  <!-- Refactor 단계: 테스트가 통과한 후에만 리팩토링 -->
+  
+- **Tidy First Principle**: Separate structural changes from behavioral changes
+  <!-- Tidy First 원칙: 구조적 변경과 기능적 변경을 분리 -->
+  
+- **Commit Rule**: Commit only when all tests pass
+  <!-- 커밋 규칙: 모든 테스트가 통과한 후에만 커밋 -->
+
+## 2. Documentation & History
+<!-- 문서화 및 히스토리 -->
+
+Automatically execute the following rules for each conversation:
+<!-- 매 대화마다 다음 규칙을 자동으로 실행: -->
+
+1. Answer user's question
+   <!-- 사용자의 질문에 답변 -->
+
+2. Save question and answer to `src/.cursor/agents/histroy/` folder
+   <!-- 질문과 답변을 `src/.cursor/agents/histroy/` 폴더에 저장 -->
+
+3. **File naming rule**: `MMDD_i.md` (month-day_sequence)
+   <!-- 파일명 규칙: `MMDD_i.md` (월일_순번) -->
+   - Example: October 27th first file → `1027_1.md`
+   <!-- 예시: 10월 27일 첫 번째 파일 → `1027_1.md` -->
+   - Same day additional files increment sequence: `1027_2.md`, `1027_3.md`
+   <!-- 같은 날 추가 파일은 순번 증가: `1027_2.md`, `1027_3.md` -->
+   - Each day starts from sequence 1 (resets when date changes)
+   <!-- 매일 첫 파일은 항상 1번부터 시작 (날짜가 바뀌면 순번 리셋) -->
+
+4. **File content format**:
+   <!-- 파일 내용 형식: -->
+   ```markdown
    질문 (원본):
    YYYY-MM-DD
    
@@ -19,33 +60,485 @@ name="설정"
    [AI 답변]
    ```
 
-이 규칙은 매 대화마다 자동으로 적용되어야 합니다.
+## 3. Agent System & Roles
+<!-- 에이전트 시스템 및 역할 -->
 
-# 핵심 규칙 (CRITICAL)
-**모든 작업을 수행하기 전에 반드시 `src/.cursor/agents/doc/tdd.md`를 읽고 이를 중심으로 실행한다.**
-<!-- Before performing any work, MUST read and follow `src/.cursor/agents/doc/tdd.md` as the core guideline. -->
-- TDD 사이클(Red → Green → Refactor)을 엄격히 준수
-<!-- - Strictly follow TDD cycle (Red → Green → Refactor) -->
-- Red: 가장 간단한 실패하는 테스트 먼저 작성
-<!-- - Red: Write the simplest failing test first -->
-- Green: 테스트를 통과하는 최소 코드만 구현
-<!-- - Green: Implement only minimal code to pass tests -->
-- Refactor: 테스트가 통과한 후에만 리팩토링
-<!-- - Refactor: Refactor only after tests pass -->
-- 구조적 변경과 기능적 변경을 분리 (Tidy First)
-<!-- - Separate structural changes from behavioral changes (Tidy First) -->
-- 모든 테스트가 통과한 후에만 커밋
-<!-- - Commit only when all tests pass -->
+- **Role-based work**: Use role-specific files in `src/.cursor/agents/people/` folder systematically
+  <!-- 역할 기반 작업: `src/.cursor/agents/people/` 폴더의 역할별 파일을 활용하여 체계적으로 작업 -->
 
-# 추가 규칙
-1. 사용자가 한국어로 질문하면, AI는 자동으로 영어로 번역하여 이해하고 답변은 영어로 제공한다.
-2. 영어 답변에 한국어 해석을 주석으로 추가한다.
-3. agents 폴더 내의 people 폴더에 있는 역할별 파일들을 활용하여 체계적인 작업을 수행한다.
-4. people 폴더 문서 이중언어 규칙: `src/.cursor/agents/people/*.md` 파일은 본문을 영어로 작성하고, 각 영어 제목/문장/불릿 바로 다음 줄에 한국어 해석만 바로 HTML 주석(`<!-- ... -->`)으로 적는다. "한글 해석:" 같은 프리픽스는 사용하지 않는다.
-5. 모든 코드 작성 시 `.prettierrc`의 포맷팅 규칙을 준수한다.
-<!-- When writing all code, follow the formatting rules in `.prettierrc`. -->
-   - Single quotes (singleQuote: true)
-   - Semicolons (semi: true)
-   - 2-space indentation (tabWidth: 2)
-   - Trailing commas for ES5 (trailingComma: 'es5')
-   - Arrow function parentheses always (arrowParens: 'always')
+- **Bilingual documentation rule**: Write `people/*.md` files in English, add Korean translation in HTML comments (`<!-- ... -->`) immediately after each English title/sentence/bullet
+  <!-- 문서 이중언어 규칙: `people/*.md` 파일은 본문을 영어로 작성하고, 각 영어 제목/문장/불릿 바로 다음 줄에 한국어 해석을 HTML 주석으로 추가 -->
+  - Do not use prefixes like "한글 해석:"
+  <!-- "한글 해석:" 같은 프리픽스 사용하지 않음 -->
+  - Example:
+  <!-- 예시: -->
+    ```markdown
+    ## Role Definition
+    <!-- 역할 정의 -->
+    ```
+
+# ========================================
+# CODE CONVENTIONS
+# ========================================
+<!-- 코드 컨벤션 -->
+
+## 4. TypeScript Standards
+<!-- TypeScript 표준 -->
+
+### 4.1 Mandatory TypeScript Usage
+<!-- TypeScript 필수 사용 -->
+
+- **All production code** must be written in TypeScript
+  <!-- 모든 기능 코드는 TypeScript로 작성 -->
+  
+- **All test code** must also be written in TypeScript
+  <!-- 모든 테스트 코드도 TypeScript로 작성 -->
+  
+- Type definitions must be clear and specific
+  <!-- 타입 정의는 명확하고 구체적으로 작성 -->
+  
+- Avoid `any` type (if unavoidable, explain with comments)
+  <!-- `any` 타입 사용 금지 (불가피한 경우 주석으로 이유 설명) -->
+
+### 4.2 Function Naming Convention
+<!-- 함수 네이밍 컨벤션 -->
+
+**Rule**: Use camelCase + must be intuitive when translated to Korean
+<!-- 규칙: camelCase 사용 + 한국어 번역이 직관적이어야 함 -->
+
+**Good Examples** (✅):
+```typescript
+// "Get user data"
+// "사용자 데이터를 가져온다"
+function getUserData() { }
+
+// "Create event"
+// "이벤트를 생성한다"
+function createEvent() { }
+
+// "Validate time range"
+// "시간 범위를 검증한다"
+function validateTimeRange() { }
+
+// "Send notification"
+// "알림을 전송한다"
+function sendNotification() { }
+
+// "Check overlap"
+// "오버랩을 확인한다"
+function checkOverlap() { }
+```
+
+**Bad Examples** (❌):
+```typescript
+function getData() { }           // ❌ Too vague (What data?)
+                                 // ❌ 너무 모호함 (무슨 데이터?)
+
+function handle() { }             // ❌ Unclear what to handle
+                                  // ❌ 무엇을 handle하는지 불명확
+
+function process() { }            // ❌ Unclear what to process
+                                  // ❌ 무엇을 process하는지 불명확
+
+function do() { }                 // ❌ Meaningless
+                                  // ❌ 의미 없음
+
+function x() { }                  // ❌ Cannot convey meaning
+                                  // ❌ 의미 전달 불가
+```
+
+**Naming Guidelines**:
+<!-- 네이밍 가이드라인: -->
+
+1. **Use verb + noun combination**
+   <!-- 동사 + 명사 조합 사용 -->
+   - `getUser`, `createEvent`, `updateData`, `deleteItem`
+
+2. **Verify naturalness when translated to Korean**
+   <!-- 한국어로 번역했을 때 자연스러운지 확인 -->
+   - `getUserProfile` → "Get user profile" / "사용자 프로필을 가져온다" ✅
+   - `fetchHolidays` → "Fetch holidays" / "공휴일을 가져온다" ✅
+   - `calculateTotal` → "Calculate total" / "합계를 계산한다" ✅
+
+3. **Boolean functions start with `is`, `has`, `should`, `can`**
+   <!-- Boolean 반환 함수는 `is`, `has`, `should`, `can`으로 시작 -->
+   - `isValid`, `hasPermission`, `shouldUpdate`, `canDelete`
+
+4. **Event handlers use `handle` or `on` prefix**
+   <!-- 이벤트 핸들러는 `handle` 또는 `on` 접두사 -->
+   - `handleClick`, `onSubmit`, `handleInputChange`
+
+### 4.3 CSS Class Naming Convention
+<!-- CSS 클래스 네이밍 컨벤션 -->
+
+**Rule**: Use snake_case (underscore) + selectable by double-click
+<!-- 규칙: snake_case (언더스코어) 사용 + 더블 클릭으로 전체 선택 가능 -->
+
+**Structure**: `section_number_element_type`
+<!-- 구조: `섹션_번호_요소_타입` -->
+
+**Good Examples** (✅):
+```css
+.section_1_title { }
+.section_1_text { }
+.section_1_flex_box { }
+.section_2_button { }
+.section_2_input_field { }
+.header_nav_menu { }
+.footer_social_icons { }
+.modal_close_button { }
+.card_image_container { }
+.form_error_message { }
+```
+
+**Bad Examples** (❌):
+```css
+.section1Title { }           // ❌ camelCase (only part selected on double-click)
+                             // ❌ camelCase (더블 클릭 시 일부만 선택됨)
+
+.section-1-title { }         // ❌ kebab-case (only part selected on double-click)
+                             // ❌ kebab-case (더블 클릭 시 일부만 선택됨)
+
+.s1t { }                     // ❌ Unclear meaning
+                             // ❌ 의미 불명확
+
+.title { }                   // ❌ Too general
+                             // ❌ 너무 일반적
+
+.box1 { }                    // ❌ Cannot convey meaning
+                             // ❌ 의미 전달 불가
+```
+
+**Why snake_case?**
+<!-- 왜 snake_case인가? -->
+
+```css
+/* Double-click behavior comparison */
+/* 더블 클릭 동작 비교 */
+
+/* ✅ snake_case: entire class selected */
+/* ✅ snake_case: 전체 선택됨 */
+.section_1_title { }
+/* Double-click → "section_1_title" fully selected */
+/* 더블 클릭 → "section_1_title" 전체 선택 */
+
+/* ❌ kebab-case: only part selected */
+/* ❌ kebab-case: 일부만 선택됨 */
+.section-1-title { }
+/* Double-click → only "section" or "1" or "title" selected */
+/* 더블 클릭 → "section" 또는 "1" 또는 "title" 만 선택 */
+
+/* ❌ camelCase: only part selected */
+/* ❌ camelCase: 일부만 선택됨 */
+.section1Title { }
+/* Double-click → only "section" or "Title" selected */
+/* 더블 클릭 → "section" 또는 "Title" 만 선택 */
+```
+
+**Class Naming Guidelines**:
+<!-- 클래스 네이밍 가이드라인: -->
+
+1. **Reflect hierarchy**
+   <!-- 계층 구조 반영 -->
+   - `header_nav_menu_item`
+   - `footer_copyright_text`
+   - `modal_content_body`
+
+2. **Use prefix for states**
+   <!-- 상태는 접두사 사용 -->
+   - `is_active`, `is_disabled`, `is_loading`
+   - `has_error`, `has_value`
+
+3. **Use suffix for modifiers**
+   <!-- 수정자는 접미사 사용 -->
+   - `button_primary`, `button_secondary`
+   - `text_large`, `text_small`
+
+4. **BEM style can be applied**
+   <!-- BEM 스타일 응용 가능 -->
+   - Block: `card`
+   - Element: `card_header`, `card_body`, `card_footer`
+   - Modifier: `card_featured`, `card_highlighted`
+
+## 5. Code Formatting (.prettierrc)
+<!-- 코드 포맷팅 (.prettierrc) -->
+
+Follow `.prettierrc` rules when writing all code:
+<!-- 모든 코드 작성 시 `.prettierrc` 규칙 준수: -->
+
+- **Single quotes**: `singleQuote: true`
+- **Semicolons**: `semi: true`
+- **2-space indentation**: `tabWidth: 2`
+- **Trailing commas**: `trailingComma: 'es5'`
+- **Arrow function parentheses**: `arrowParens: 'always'`
+- **Line endings**: `endOfLine: 'lf'` (LF only, not CRLF)
+- **Print width**: `printWidth: 100`
+
+## 6. Import Order
+<!-- Import 순서 -->
+
+**Rule**: External libraries → blank line → internal modules
+<!-- 규칙: 외부 라이브러리 → 빈 줄 → 내부 모듈 -->
+
+```typescript
+// ✅ Good
+import { useState } from 'react';
+import { Button } from '@mui/material';
+import { useSnackbar } from 'notistack';
+
+import Modal from './components/Modal';
+import { useCalendarView } from './hooks/useCalendarView';
+import { Event } from './types';
+
+// ❌ Bad
+import { useState } from 'react';
+
+import Modal from './components/Modal';  // No blank line between groups
+                                         // 그룹 간 빈 줄 없음
+import { Button } from '@mui/material';  // Wrong order
+                                         // 잘못된 순서
+```
+
+# ========================================
+# VALIDATION PROCESS
+# ========================================
+<!-- 검증 프로세스 -->
+
+## 7. Rule Validation Checkpoints
+<!-- 규칙 검증 체크포인트 -->
+
+### 7.1 Before Starting Work
+<!-- 작업 시작 시 -->
+
+**Required checks**:
+<!-- 필수 확인 사항: -->
+
+1. **✅ Check TDD guide**
+   <!-- TDD 가이드 확인 -->
+   - Read `src/.cursor/agents/doc/tdd.md`
+   <!-- `src/.cursor/agents/doc/tdd.md` 읽기 -->
+   - Recall Red → Green → Refactor cycle
+   <!-- Red → Green → Refactor 사이클 상기 -->
+
+2. **✅ Check related documents**
+   <!-- 관련 문서 확인 -->
+   - `src/.cursor/agents/doc/checklist.md` - Pre-commit checklist
+   <!-- `src/.cursor/agents/doc/checklist.md` - 커밋 전 체크리스트 -->
+   - `src/.cursor/agents/doc/test-guidelines.md` - Test writing guide
+   <!-- `src/.cursor/agents/doc/test-guidelines.md` - 테스트 작성 가이드 -->
+
+3. **✅ Check role**
+   <!-- 역할 확인 -->
+   - Check appropriate `people/*.md` file for the task
+   <!-- 해당 작업에 맞는 `people/*.md` 파일 확인 -->
+   - Understand role-specific responsibilities and processes
+   <!-- 역할별 책임과 프로세스 이해 -->
+
+4. **✅ Recall code conventions**
+   <!-- 코드 컨벤션 상기 -->
+   - Function naming: camelCase + intuitive Korean translation
+   <!-- 함수 네이밍: camelCase + 한국어 번역 직관적 -->
+   - Class naming: snake_case + double-click selectable
+   <!-- 클래스 네이밍: snake_case + 더블 클릭 선택 가능 -->
+   - TypeScript mandatory usage
+   <!-- TypeScript 필수 사용 -->
+
+### 7.2 Before Finishing Work
+<!-- 작업 마무리 시 -->
+
+**Required validation items**:
+<!-- 필수 검증 항목: -->
+
+1. **✅ TypeScript validation**
+   <!-- TypeScript 검증 -->
+   ```bash
+   npm run lint:tsc
+   ```
+   - No type errors
+   <!-- 타입 오류 없음 -->
+   - Check `any` type usage
+   <!-- `any` 타입 사용 여부 확인 -->
+   - Verify type definitions are clear
+   <!-- 타입 정의가 명확한지 확인 -->
+
+2. **✅ Naming convention validation**
+   <!-- 네이밍 컨벤션 검증 -->
+   - Verify all functions use camelCase
+   <!-- 모든 함수가 camelCase인지 확인 -->
+   - Check if function names are intuitive when translated to Korean
+   <!-- 함수명을 한국어로 번역했을 때 직관적인지 확인 -->
+   - Verify all CSS classes use snake_case
+   <!-- 모든 CSS 클래스가 snake_case인지 확인 -->
+   - Check if class names are fully selectable by double-click
+   <!-- 클래스명 더블 클릭으로 전체 선택 가능한지 확인 -->
+
+3. **✅ Code formatting validation**
+   <!-- 코드 포맷팅 검증 -->
+   ```bash
+   npm run lint:eslint
+   ```
+   - Verify Prettier rules compliance
+   <!-- Prettier 규칙 준수 확인 -->
+   - Check import order is correct
+   <!-- Import 순서 올바른지 확인 -->
+   - Verify LF line endings (not CRLF)
+   <!-- LF 줄바꿈 사용 확인 (CRLF 아님) -->
+
+4. **✅ Test validation**
+   <!-- 테스트 검증 -->
+   ```bash
+   npm test -- --run
+   ```
+   - All tests pass
+   <!-- 모든 테스트 통과 -->
+   - Tests for new features completed
+   <!-- 새로운 기능에 대한 테스트 작성 완료 -->
+   - Check test coverage
+   <!-- 테스트 커버리지 확인 -->
+
+5. **✅ TDD cycle completion check**
+   <!-- TDD 사이클 완료 확인 -->
+   - Red phase: Failing test written
+   <!-- Red 단계: 실패하는 테스트 작성 완료 -->
+   - Green phase: Minimal code to pass tests implemented
+   <!-- Green 단계: 테스트 통과하는 최소 코드 구현 완료 -->
+   - Refactor phase: Code improvement completed (tests still passing)
+   <!-- Refactor 단계: 코드 개선 완료 (테스트 통과 유지) -->
+
+6. **✅ Documentation check**
+   <!-- 문서화 확인 -->
+   - History file saved (`histroy/MMDD_i.md`)
+   <!-- 히스토리 파일 저장 완료 (`histroy/MMDD_i.md`) -->
+   - Add comments to complex logic
+   <!-- 복잡한 로직에 주석 추가 -->
+   - Add English comments + Korean translation comments
+   <!-- 영어 주석 + 한국어 해석 주석 추가 -->
+
+7. **✅ Pre-commit final check**
+   <!-- 커밋 전 최종 체크 -->
+   ```bash
+   # Check CRLF
+   # CRLF 확인
+   git diff --check
+   
+   # Full lint
+   # 전체 린트
+   npm run lint
+   
+   # Full test
+   # 전체 테스트
+   npm test -- --run
+   ```
+
+### 7.3 Validation Checklist Summary
+<!-- 검증 체크리스트 요약 -->
+
+**Before starting work**:
+<!-- 작업 시작 전: -->
+- [ ] Read TDD guide
+<!-- TDD 가이드 읽기 -->
+- [ ] Check related documents
+<!-- 관련 문서 확인 -->
+- [ ] Check role file
+<!-- 역할 파일 확인 -->
+- [ ] Recall code conventions
+<!-- 코드 컨벤션 상기 -->
+
+**After finishing work**:
+<!-- 작업 완료 후: -->
+- [ ] TypeScript validation (`npm run lint:tsc`)
+<!-- TypeScript 검증 (`npm run lint:tsc`) -->
+- [ ] Naming convention check (camelCase functions, snake_case classes)
+<!-- 네이밍 컨벤션 확인 (camelCase 함수, snake_case 클래스) -->
+- [ ] Korean translation intuitiveness check
+<!-- 한국어 번역 직관성 확인 -->
+- [ ] Code formatting validation (`npm run lint:eslint`)
+<!-- 코드 포맷팅 검증 (`npm run lint:eslint`) -->
+- [ ] Test pass (`npm test -- --run`)
+<!-- 테스트 통과 (`npm test -- --run`) -->
+- [ ] TDD cycle completion check
+<!-- TDD 사이클 완료 확인 -->
+- [ ] Documentation completed
+<!-- 문서화 완료 -->
+- [ ] Pre-commit final check (`git diff --check`, `npm run lint`)
+<!-- 커밋 전 최종 체크 (`git diff --check`, `npm run lint`) -->
+
+# ========================================
+# ADDITIONAL RULES
+# ========================================
+<!-- 추가 규칙 -->
+
+## 8. Language & Communication
+<!-- 언어 및 커뮤니케이션 -->
+
+1. **Korean question handling**: When user asks in Korean, AI automatically translates to English to understand and provides answer in Korean
+   <!-- 한국어 질문 처리: 사용자가 한국어로 질문하면, AI는 자동으로 영어로 번역하여 이해하고 답변은 한국어로 제공 -->
+
+2. **Code comments**: Add Korean translation in HTML comments to English comments
+   <!-- 코드 주석: 영어 주석에 한국어 해석을 HTML 주석으로 추가 -->
+
+## 9. File Organization
+<!-- 파일 구성 -->
+
+- **Test file location**:
+  <!-- 테스트 파일 위치: -->
+  - Unit tests (utils/functions): `src/__tests__/unit/*.spec.ts`
+  - Hook tests: `src/__tests__/hooks/*.spec.ts`
+  - Component tests: `src/__tests__/components/*.spec.tsx`
+  - Integration tests: `src/__tests__/*.spec.tsx`
+
+- **Documentation location**:
+  <!-- 문서 위치: -->
+  - Guides: `src/.cursor/agents/doc/`
+  <!-- 가이드: `src/.cursor/agents/doc/` -->
+  - Role definitions: `src/.cursor/agents/people/`
+  <!-- 역할 정의: `src/.cursor/agents/people/` -->
+  - History: `src/.cursor/agents/histroy/`
+  <!-- 히스토리: `src/.cursor/agents/histroy/` -->
+
+# ========================================
+# QUICK REFERENCE
+# ========================================
+<!-- 빠른 참조 -->
+
+## Function Naming Checklist
+<!-- 함수 네이밍 체크리스트 -->
+- [ ] Using camelCase?
+<!-- camelCase 사용? -->
+- [ ] Verb + noun combination?
+<!-- 동사 + 명사 조합? -->
+- [ ] Natural when translated to Korean?
+<!-- 한국어로 번역했을 때 자연스러운가? -->
+- [ ] Boolean functions start with `is`/`has`/`can`/`should`?
+<!-- Boolean 함수는 `is`/`has`/`can`/`should`로 시작? -->
+
+## Class Naming Checklist
+<!-- 클래스 네이밍 체크리스트 -->
+- [ ] Using snake_case?
+<!-- snake_case 사용? -->
+- [ ] Fully selectable by double-click?
+<!-- 더블 클릭으로 전체 선택 가능? -->
+- [ ] Clear meaning?
+<!-- 의미가 명확한가? -->
+- [ ] Reflects hierarchy?
+<!-- 계층 구조 반영? -->
+
+## Pre-Commit Checklist
+<!-- 커밋 전 체크리스트 -->
+```bash
+git diff --check           # Check CRLF
+                          # CRLF 확인
+npm run lint:tsc           # TypeScript validation
+                          # TypeScript 검증
+npm run lint:eslint        # ESLint validation
+                          # ESLint 검증
+npm test -- --run          # Run all tests
+                          # 모든 테스트 실행
+npm run lint:eslint -- --fix  # Auto-fix
+                             # 자동 수정
+```
+
+---
+
+**These rules must be validated at the start and end of every task.**
+<!-- 이 규칙은 모든 작업의 시작과 끝에서 검증되어야 합니다. -->

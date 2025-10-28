@@ -58,4 +58,3 @@ const Modal = ({ isOpen, onClose }: ModalProps) => {
 };
 
 export default Modal;
-

@@ -31,7 +31,6 @@ import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
 import Modal from './components/Modal';
-
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
 import { useEventOperations } from './hooks/useEventOperations.ts';

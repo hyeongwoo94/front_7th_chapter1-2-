@@ -59,6 +59,30 @@
       "category": "개인",
       "repeat": { "type": "none", "interval": 0 },
       "notificationTime": 1
+    },
+    {
+      "id": "f3a7b2c1-9d4e-4f8a-b5c6-3e7d8a9b0c1d",
+      "title": "내 생일",
+      "date": "2025-06-25",
+      "startTime": "18:00",
+      "endTime": "21:00",
+      "description": "나의 생일 축하",
+      "location": "집",
+      "category": "개인",
+      "repeat": { "type": "none", "interval": 0 },
+      "notificationTime": 1
+    },
+    {
+      "id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+      "title": "테스트야",
+      "date": "2025-10-29",
+      "startTime": "14:00",
+      "endTime": "15:00",
+      "description": "테스트 이벤트",
+      "location": "테스트 장소",
+      "category": "개인",
+      "repeat": { "type": "none", "interval": 0 },
+      "notificationTime": 1
     }
   ]
 }

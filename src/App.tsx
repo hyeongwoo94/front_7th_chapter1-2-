@@ -86,9 +86,9 @@ function App() {
     repeatType,
     setRepeatType,
     repeatInterval,
-    setRepeatInterval,
+    // setRepeatInterval, // TODO: Add interval UI
     repeatEndDate,
-    setRepeatEndDate,
+    // setRepeatEndDate, // TODO: Add end date UI
     notificationTime,
     setNotificationTime,
     startTimeError,
@@ -126,22 +126,43 @@ function App() {
       return;
     }
 
-    const eventData: Event | EventForm = {
-      id: editingEvent ? editingEvent.id : undefined,
-      title,
-      date,
-      startTime,
-      endTime,
-      description,
-      location,
-      category,
-      repeat: {
-        type: isRepeating ? repeatType : 'none',
-        interval: repeatInterval,
-        endDate: repeatEndDate || undefined,
-      },
-      notificationTime,
-    };
+    const eventData: Event | EventForm = editingEvent
+      ? {
+          // Editing: Preserve original event with metadata
+          // <!-- 수정: 메타데이터를 포함한 원본 이벤트 보존 -->
+          ...editingEvent,
+          title,
+          date,
+          startTime,
+          endTime,
+          description,
+          location,
+          category,
+          repeat: {
+            ...editingEvent.repeat, // Preserve metadata
+            type: isRepeating ? repeatType : 'none',
+            interval: repeatInterval,
+            endDate: repeatEndDate || undefined,
+          },
+          notificationTime,
+        }
+      : {
+          // Creating new event
+          // <!-- 새 이벤트 생성 -->
+          title,
+          date,
+          startTime,
+          endTime,
+          description,
+          location,
+          category,
+          repeat: {
+            type: isRepeating ? repeatType : 'none',
+            interval: repeatInterval,
+            endDate: repeatEndDate || undefined,
+          },
+          notificationTime,
+        };
 
     const overlapping = findOverlappingEvents(eventData, events);
     if (overlapping.length > 0) {
@@ -441,7 +462,11 @@ function App() {
                 aria-label="반복 유형"
               >
                 {repeatTypeOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value} aria-label={`${option.label}-option`}>
+                  <MenuItem
+                    key={option.value}
+                    value={option.value}
+                    aria-label={`${option.label}-option`}
+                  >
                     {option.label}
                   </MenuItem>
                 ))}
@@ -642,22 +667,41 @@ function App() {
             color="error"
             onClick={() => {
               setIsOverlapDialogOpen(false);
-              saveEvent({
-                id: editingEvent ? editingEvent.id : undefined,
-                title,
-                date,
-                startTime,
-                endTime,
-                description,
-                location,
-                category,
-                repeat: {
-                  type: isRepeating ? repeatType : 'none',
-                  interval: repeatInterval,
-                  endDate: repeatEndDate || undefined,
-                },
-                notificationTime,
-              });
+              saveEvent(
+                editingEvent
+                  ? {
+                      ...editingEvent,
+                      title,
+                      date,
+                      startTime,
+                      endTime,
+                      description,
+                      location,
+                      category,
+                      repeat: {
+                        ...editingEvent.repeat,
+                        type: isRepeating ? repeatType : 'none',
+                        interval: repeatInterval,
+                        endDate: repeatEndDate || undefined,
+                      },
+                      notificationTime,
+                    }
+                  : {
+                      title,
+                      date,
+                      startTime,
+                      endTime,
+                      description,
+                      location,
+                      category,
+                      repeat: {
+                        type: isRepeating ? repeatType : 'none',
+                        interval: repeatInterval,
+                        endDate: repeatEndDate || undefined,
+                      },
+                      notificationTime,
+                    }
+              );
             }}
           >
             계속 진행

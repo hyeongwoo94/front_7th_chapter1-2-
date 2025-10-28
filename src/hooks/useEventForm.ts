@@ -65,7 +65,7 @@ export const useEventForm = (initialEvent?: Event) => {
     setLocation(event.location);
     setCategory(event.category);
     setIsRepeating(event.repeat.type !== 'none');
-    setRepeatType(event.repeat.type);
+    setRepeatType(event.repeat.type !== 'none' ? event.repeat.type : 'daily');
     setRepeatInterval(event.repeat.interval);
     setRepeatEndDate(event.repeat.endDate || '');
     setNotificationTime(event.notificationTime);

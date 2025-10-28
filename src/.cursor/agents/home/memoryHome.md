@@ -370,3 +370,180 @@ When planning any UI component with user selection:
 **User can complete common tasks with minimal clicks/selections**
 <!-- 사용자가 최소 클릭/선택으로 일반 작업 완료 가능 -->
 
+---
+
+## Stored Learning: Default Values in Edit Mode (2025-10-28)
+<!-- 저장된 학습: 수정 모드에서의 기본값 (2025-10-28) -->
+
+### Issue Discovered by King
+<!-- 건물주가 발견한 이슈 -->
+
+**Context**: When editing an event that was originally saved without repeat (repeat.type = 'none'), and then user checks the repeat checkbox during edit, the repeat type Select shows empty value instead of default 'daily'.
+<!-- 컨텍스트: 반복 없이 저장된 일정(repeat.type = 'none')을 수정할 때, 사용자가 반복 일정 체크박스를 체크하면 반복 유형 Select가 기본값 '매일' 대신 빈 값을 표시함 -->
+
+**File**: `src/hooks/useEventForm.ts`
+<!-- 파일: `src/hooks/useEventForm.ts` -->
+
+### Problem Pattern
+<!-- 문제 패턴 -->
+
+**Missing Default Value in Edit Function**:
+<!-- 수정 함수에서 기본값 누락: -->
+
+```typescript
+// ❌ WRONG - Directly sets 'none' without checking
+const editEvent = (event: Event) => {
+  setIsRepeating(event.repeat.type !== 'none');
+  setRepeatType(event.repeat.type);  // If 'none', Select has no matching option!
+};
+```
+
+**Issue Breakdown**:
+<!-- 문제 분석: -->
+
+1. Event saved with `repeat.type = 'none'`
+   <!-- 일정이 `repeat.type = 'none'`으로 저장됨 -->
+
+2. User clicks edit → `editEvent()` called → `setRepeatType('none')`
+   <!-- 사용자가 수정 클릭 → `editEvent()` 호출 → `setRepeatType('none')` -->
+
+3. User checks repeat checkbox → `isRepeating = true` → Select appears
+   <!-- 사용자가 반복 체크박스 체크 → `isRepeating = true` → Select 표시 -->
+
+4. Select options: ['daily', 'weekly', 'monthly', 'yearly']
+   <!-- Select 옵션: ['daily', 'weekly', 'monthly', 'yearly'] -->
+
+5. Current value: 'none' → No matching option → **Shows empty/blank**
+   <!-- 현재 값: 'none' → 일치하는 옵션 없음 → **빈 값 표시** -->
+
+### Solution Pattern
+<!-- 해결 패턴 -->
+
+**Apply Default Value in Edit Mode**:
+<!-- 수정 모드에서 기본값 적용: -->
+
+```typescript
+// ✅ CORRECT - Check for 'none' and apply default
+const editEvent = (event: Event) => {
+  setIsRepeating(event.repeat.type !== 'none');
+  setRepeatType(event.repeat.type !== 'none' ? event.repeat.type : 'daily');
+  //             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //             If 'none', use default 'daily' instead
+};
+```
+
+### Why This Works
+<!-- 왜 이것이 작동하는가 -->
+
+1. **Preserve Existing Values**: If event has repeat type (daily/weekly/monthly/yearly), keeps that value
+   <!-- 기존 값 유지: 일정에 반복 유형이 있으면 해당 값 유지 -->
+
+2. **Apply Default for None**: If event has no repeat ('none'), sets default 'daily'
+   <!-- None에 기본값 적용: 반복이 없으면 기본값 '매일' 설정 -->
+
+3. **Select Always Has Valid Value**: Select value always matches one of the available options
+   <!-- Select가 항상 유효한 값 가짐: Select 값이 항상 사용 가능한 옵션 중 하나와 일치 -->
+
+### Complete Default Value Pattern
+<!-- 완전한 기본값 패턴 -->
+
+For UI components with defaults, ensure consistency across:
+<!-- 기본값이 있는 UI 컴포넌트의 경우, 다음 전체에서 일관성 확보: -->
+
+1. **Initial State**: Default on first load
+   <!-- 초기 상태: 첫 로드 시 기본값 -->
+   ```typescript
+   const [repeatType, setRepeatType] = useState<RepeatType>('daily');
+   ```
+
+2. **Form Reset**: Default when clearing form
+   <!-- 폼 리셋: 폼 지울 때 기본값 -->
+   ```typescript
+   const resetForm = () => {
+     setRepeatType('daily');
+   };
+   ```
+
+3. **Edit Mode**: Default when editing items with no value
+   <!-- 수정 모드: 값이 없는 항목 수정 시 기본값 -->
+   ```typescript
+   const editEvent = (event: Event) => {
+     setRepeatType(event.repeat.type !== 'none' ? event.repeat.type : 'daily');
+   };
+   ```
+
+### Learning Points for All Agents
+<!-- 모든 에이전트를 위한 학습 포인트 -->
+
+#### For Planner (계획자)
+<!-- 계획자를 위해 -->
+
+- [ ] When planning edit/update features, specify default behavior for unset values
+  <!-- 수정/업데이트 기능 계획 시, 설정되지 않은 값에 대한 기본 동작 명시 -->
+- [ ] Consider all paths: initial → reset → edit → re-edit
+  <!-- 모든 경로 고려: 초기 → 리셋 → 수정 → 재수정 -->
+- [ ] Document expected behavior when toggling UI visibility (checkboxes revealing selects)
+  <!-- UI 가시성 토글 시 예상 동작 문서화 (체크박스로 인한 셀렉트 표시) -->
+
+#### For Worker (노동자)
+<!-- 노동자를 위해 -->
+
+- [ ] Test edit mode with items that have no/default values
+  <!-- 값이 없거나 기본값인 항목의 수정 모드 테스트 -->
+- [ ] Verify Select/Dropdown components always have valid values matching options
+  <!-- Select/Dropdown 컴포넌트가 항상 옵션과 일치하는 유효한 값을 갖는지 확인 -->
+- [ ] Check consistency: initial state, reset, and edit should all respect defaults
+  <!-- 일관성 확인: 초기 상태, 리셋, 수정 모두 기본값 준수 -->
+
+#### For Manager (관리자)
+<!-- 관리자를 위해 -->
+
+- [ ] Review edit functions for default value handling
+  <!-- 기본값 처리를 위한 수정 함수 검토 -->
+- [ ] Check that conditional UI (hidden/shown based on checkbox) has proper defaults
+  <!-- 조건부 UI(체크박스 기반 숨김/표시)가 적절한 기본값을 갖는지 확인 -->
+- [ ] Verify Select components never show empty/blank when they have required values
+  <!-- Select 컴포넌트가 필수 값을 가질 때 빈 값을 표시하지 않는지 확인 -->
+
+### Testing Checklist
+<!-- 테스트 체크리스트 -->
+
+When testing forms with conditional inputs:
+<!-- 조건부 입력이 있는 폼 테스트 시: -->
+
+1. **Initial Add**: Add new item with default values → Verify defaults applied
+   <!-- 초기 추가: 기본값으로 새 항목 추가 → 기본값 적용 확인 -->
+
+2. **Reset**: Clear form → Verify defaults restored
+   <!-- 리셋: 폼 지우기 → 기본값 복원 확인 -->
+
+3. **Edit with Value**: Edit item that has value → Verify value preserved
+   <!-- 값이 있는 항목 수정: 값이 있는 항목 수정 → 값 유지 확인 -->
+
+4. **Edit without Value**: Edit item without value/with 'none' → Verify default applied
+   <!-- 값이 없는 항목 수정: 값이 없거나 'none'인 항목 수정 → 기본값 적용 확인 -->
+
+5. **Toggle Visibility**: Check checkbox to show hidden input → Verify input has valid default
+   <!-- 가시성 토글: 체크박스 체크하여 숨겨진 입력 표시 → 입력에 유효한 기본값 있는지 확인 -->
+
+### Code Pattern Summary
+<!-- 코드 패턴 요약 -->
+
+```typescript
+// Pattern: When setting state from external data, check for invalid/empty values
+const setValue = (externalValue) => {
+  setState(isValidValue(externalValue) ? externalValue : DEFAULT_VALUE);
+};
+
+// Real example from repeat type:
+setRepeatType(event.repeat.type !== 'none' ? event.repeat.type : 'daily');
+//            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^
+//            Check if valid                 Use existing          Use default
+```
+
+### Success Metric
+<!-- 성공 지표 -->
+
+**Select/Dropdown components always show a valid selection, never blank, especially after editing**
+<!-- Select/Dropdown 컴포넌트는 항상 유효한 선택 항목을 표시하며, 특히 수정 후에도 절대 빈 값을 표시하지 않음 -->
+

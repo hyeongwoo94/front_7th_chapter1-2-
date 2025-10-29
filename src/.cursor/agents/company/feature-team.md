@@ -30,8 +30,8 @@ A functional function is a **pure function** that takes input, processes it, and
 
 ## Reference Materials
 <!-- 참고 자료 -->
-- **Existing Utils**: `src/utils/*.ts`
-<!-- 기존 Utils: `src/utils/*.ts` -->
+- **Existing Utils**: `src/utils/*.ts` - Learn from existing function patterns
+<!-- 기존 Utils: `src/utils/*.ts` - 기존 함수 패턴에서 학습 -->
 - **Memory Home**: `memoryHome.md` - Code patterns and data structures
 <!-- Memory Home: `memoryHome.md` - 코드 패턴과 데이터 구조 -->
 - **Worker Home**: `toolsHome.md` - Code conventions and standards
@@ -350,14 +350,21 @@ describe('getDaysInMonth >', () => {
 
 ## Validation Phase
 <!-- 검증 단계 -->
-- [ ] **Tests Pass**: All tests green
-<!-- 테스트 통과: 모든 테스트 통과 -->
-- [ ] **Type Check**: `npm run lint:tsc`
-<!-- 타입 체크: `npm run lint:tsc` -->
-- [ ] **Lint**: `npm run lint:eslint`
-<!-- 린트: `npm run lint:eslint` -->
-- [ ] **Coverage**: Function is tested
-<!-- 커버리지: 함수가 테스트됨 -->
+- [ ] **Tests Pass**: All tests green (run by Worker during integration)
+<!-- 테스트 통과: 모든 테스트 통과 (통합 시 Worker가 실행) -->
+- [ ] **Code Quality**: Function follows conventions
+<!-- 코드 품질: 함수가 컨벤션을 따름 -->
+  - camelCase naming with intuitive Korean translation
+  <!-- camelCase 네이밍 + 직관적인 한국어 번역 -->
+  - Explicit TypeScript types (no `any`)
+  <!-- 명시적 TypeScript 타입 (`any` 없음) -->
+  - Single responsibility
+  <!-- 단일 책임 -->
+- [ ] **Delivery**: Submit function to Worker for integration
+<!-- 전달: Worker에게 함수 제출하여 통합 -->
+
+**Note**: Worker will run final validation (lint, type check, full test suite) during integration phase.
+<!-- 참고: Worker가 통합 단계에서 최종 검증(lint, type check, 전체 테스트 suite)을 실행합니다. -->
 
 ## Documentation Phase
 <!-- 문서화 단계 -->

@@ -51,6 +51,7 @@ import {
   getWeeksAtMonth,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
+import { hasRecurringNormalConflict } from './utils/overlapBypassLogic';
 import { getTimeErrorMessage } from './utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
@@ -116,6 +117,7 @@ function App() {
 
   const [isOverlapDialogOpen, setIsOverlapDialogOpen] = useState(false);
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
+  const [allowBypass, setAllowBypass] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -171,7 +173,9 @@ function App() {
 
     const overlapping = findOverlappingEvents(eventData, events);
     if (overlapping.length > 0) {
+      const canBypass = hasRecurringNormalConflict(eventData, overlapping);
       setOverlappingEvents(overlapping);
+      setAllowBypass(canBypass);
       setIsOverlapDialogOpen(true);
     } else {
       await saveEvent(eventData);
@@ -657,60 +661,65 @@ function App() {
         <DialogTitle>일정 겹침 경고</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            다음 일정과 겹칩니다:
+            {allowBypass
+              ? '다음 일정과 겹칩니다:'
+              : '다음 일정과 겹칩니다. 다른 시간을 선택해주세요.'}
             {overlappingEvents.map((event) => (
               <Typography key={event.id}>
                 {event.title} ({event.date} {event.startTime}-{event.endTime})
               </Typography>
             ))}
-            계속 진행하시겠습니까?
+            {allowBypass && '반복 일정과 일반 일정이 겹칩니다. 계속 진행하시겠습니까?'}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsOverlapDialogOpen(false)}>취소</Button>
-          <Button
-            color="error"
-            onClick={() => {
-              setIsOverlapDialogOpen(false);
-              saveEvent(
-                editingEvent
-                  ? {
-                      ...editingEvent,
-                      title,
-                      date,
-                      startTime,
-                      endTime,
-                      description,
-                      location,
-                      category,
-                      repeat: {
-                        ...editingEvent.repeat,
-                        type: isRepeating ? repeatType : 'none',
-                        interval: repeatInterval,
-                        endDate: repeatEndDate || undefined,
-                      },
-                      notificationTime,
-                    }
-                  : {
-                      title,
-                      date,
-                      startTime,
-                      endTime,
-                      description,
-                      location,
-                      category,
-                      repeat: {
-                        type: isRepeating ? repeatType : 'none',
-                        interval: repeatInterval,
-                        endDate: repeatEndDate || undefined,
-                      },
-                      notificationTime,
-                    }
-              );
-            }}
-          >
-            계속 진행
-          </Button>
+          {allowBypass && (
+            <Button
+              color="error"
+              onClick={async () => {
+                setIsOverlapDialogOpen(false);
+                await saveEvent(
+                  editingEvent
+                    ? {
+                        ...editingEvent,
+                        title,
+                        date,
+                        startTime,
+                        endTime,
+                        description,
+                        location,
+                        category,
+                        repeat: {
+                          ...editingEvent.repeat,
+                          type: isRepeating ? repeatType : 'none',
+                          interval: repeatInterval,
+                          endDate: repeatEndDate || undefined,
+                        },
+                        notificationTime,
+                      }
+                    : {
+                        title,
+                        date,
+                        startTime,
+                        endTime,
+                        description,
+                        location,
+                        category,
+                        repeat: {
+                          type: isRepeating ? repeatType : 'none',
+                          interval: repeatInterval,
+                          endDate: repeatEndDate || undefined,
+                        },
+                        notificationTime,
+                      }
+                );
+                resetForm();
+              }}
+            >
+              계속 진행
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 

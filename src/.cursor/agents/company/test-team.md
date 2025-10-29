@@ -22,8 +22,10 @@ A unit test tests a **single unit of code** (usually a function) in isolation, w
 
 ## Reference Materials
 <!-- 참고 자료 -->
-- **Existing Tests**: `src/__tests__/unit/*.spec.ts`
-<!-- 기존 테스트: `src/__tests__/unit/*.spec.ts` -->
+- **Test Guidelines**: `doc/test-guidelines.md` - Test structure, naming conventions, vitest configuration
+<!-- 테스트 가이드라인: `doc/test-guidelines.md` - 테스트 구조, 네이밍 컨벤션, vitest 설정 -->
+- **Existing Tests**: `src/__tests__/unit/*.spec.ts`, `src/__tests__/hooks/*.spec.ts`, `src/__tests__/components/*.spec.tsx`
+<!-- 기존 테스트: `src/__tests__/unit/*.spec.ts`, `src/__tests__/hooks/*.spec.ts`, `src/__tests__/components/*.spec.tsx` -->
 - **Memory**: `memoryHome.md` - Test data structures and patterns
 <!-- Memory: `memoryHome.md` - 테스트 데이터 구조와 패턴 -->
 

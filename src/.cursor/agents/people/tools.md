@@ -69,8 +69,10 @@ The Worker (노동자) now serves as a team orchestrator who coordinates special
 <!-- 2단계: Red (실패하는 테스트) -->
 3. **Delegate to Test Team**: Direct Test Team to write failing test
 <!-- 테스트 팀에 위임: 테스트 팀에 실패하는 테스트 작성 지시 -->
-   - **Reference**: `src/.cursor/agents/company/test-team.md` for test writing guidelines
-   <!-- 참조: 테스트 작성 가이드라인은 `src/.cursor/agents/company/test-team.md` -->
+   - **Test Team Reads**: `company/test-team.md` for test writing guidelines
+   <!-- 테스트 팀 읽기: 테스트 작성 가이드라인을 위해 `company/test-team.md` -->
+   - **Test Team References**: `doc/test-guidelines.md` for structure, naming conventions, vitest setup
+   <!-- 테스트 팀 참조: 구조, 네이밍 컨벤션, vitest 설정을 위해 `doc/test-guidelines.md` -->
 4. **Verify Red**: Confirm test fails (RED) as expected
 <!-- Red 검증: 테스트가 예상대로 실패(RED) 확인 -->
 
@@ -78,8 +80,10 @@ The Worker (노동자) now serves as a team orchestrator who coordinates special
 <!-- 3단계: Green (최소 구현) -->
 5. **Delegate to Feature Team**: Direct Feature Team to implement minimal code
 <!-- 기능 팀에 위임: 기능 팀에 최소 코드 구현 지시 -->
-   - **Reference**: `src/.cursor/agents/company/feature-team.md` for implementation guidelines
-   <!-- 참조: 구현 가이드라인은 `src/.cursor/agents/company/feature-team.md` -->
+   - **Feature Team Reads**: `company/feature-team.md` for implementation guidelines
+   <!-- 기능 팀 읽기: 구현 가이드라인을 위해 `company/feature-team.md` -->
+   - **Feature Team Focus**: Write clean code that passes tests
+   <!-- 기능 팀 집중: 테스트를 통과하는 깨끗한 코드 작성 -->
 6. **Verify Green**: Confirm test passes (GREEN)
 <!-- Green 검증: 테스트가 통과(GREEN) 확인 -->
 
@@ -89,8 +93,16 @@ The Worker (노동자) now serves as a team orchestrator who coordinates special
 <!-- 통합: 테스트와 코드를 훅/컴포넌트에 통합 -->
 8. **Refactor**: Improve code quality while keeping tests green (consult Memory)
 <!-- 리팩터: 테스트를 그린 상태로 유지하며 코드 품질 개선 (세월이 상담) -->
-9. **Quality Check**: Verify all standards met
-<!-- 품질 체크: 모든 기준 충족 확인 -->
+9. **Pre-Commit Validation**: Run final checks before delivery (reference `doc/checklist.md`)
+<!-- 커밋 전 검증: 전달 전 최종 체크 실행 (`doc/checklist.md` 참조) -->
+   - Run `git diff --check` (CRLF validation)
+   <!-- `git diff --check` 실행 (CRLF 검증) -->
+   - Run `npm run lint:tsc` (TypeScript)
+   <!-- `npm run lint:tsc` 실행 (TypeScript) -->
+   - Run `npm run lint:eslint` (ESLint)
+   <!-- `npm run lint:eslint` 실행 (ESLint) -->
+   - Run `npm test -- --run` (All tests)
+   <!-- `npm test -- --run` 실행 (모든 테스트) -->
 
 ### Phase 5: Delivery
 <!-- 5단계: 전달 -->
@@ -101,14 +113,51 @@ The Worker (노동자) now serves as a team orchestrator who coordinates special
 <!-- 기술 조율 -->
 Worker coordinates technical work through specialized teams:
 <!-- 노동자는 전문 팀을 통해 기술 작업을 조율합니다: -->
-- **Test Writing**: Delegated to Test Team (see `test-team.md`)
-<!-- 테스트 작성: 테스트 팀에 위임 (test-team.md 참조) -->
-- **Implementation**: Delegated to Feature Team (see `feature-team.md`)
-<!-- 구현: 기능 팀에 위임 (feature-team.md 참조) -->
-- **Integration**: Worker's direct responsibility
-<!-- 통합: 노동자의 직접 책임 -->
-- **Architecture**: Worker's decision-making authority
-<!-- 아키텍처: 노동자의 의사결정 권한 -->
+
+### Test Team Workflow
+<!-- 테스트 팀 워크플로 -->
+1. Worker delegates test writing task
+<!-- Worker가 테스트 작성 작업 위임 -->
+2. Test Team reads `company/test-team.md` for approach
+<!-- 테스트 팀이 접근 방식을 위해 `company/test-team.md` 읽기 -->
+3. Test Team references `doc/test-guidelines.md` for:
+<!-- 테스트 팀이 다음을 위해 `doc/test-guidelines.md` 참조: -->
+   - Test file structure (.spec.ts vs .spec.tsx)
+   <!-- 테스트 파일 구조 (.spec.ts vs .spec.tsx) -->
+   - Naming conventions (Korean descriptions)
+   <!-- 네이밍 컨벤션 (한글 설명) -->
+   - Vitest configuration and IDE plugin setup
+   <!-- Vitest 설정 및 IDE 플러그인 설정 -->
+4. Test Team delivers comprehensive tests
+<!-- 테스트 팀이 포괄적인 테스트 전달 -->
+
+### Feature Team Workflow
+<!-- 기능 팀 워크플로 -->
+1. Worker delegates implementation task with failing tests
+<!-- Worker가 실패하는 테스트와 함께 구현 작업 위임 -->
+2. Feature Team reads `company/feature-team.md` for patterns
+<!-- 기능 팀이 패턴을 위해 `company/feature-team.md` 읽기 -->
+3. Feature Team implements minimal code to pass tests
+<!-- 기능 팀이 테스트를 통과하는 최소 코드 구현 -->
+4. Feature Team delivers clean code to Worker
+<!-- 기능 팀이 Worker에게 깨끗한 코드 전달 -->
+
+### Worker Integration Responsibility
+<!-- Worker 통합 책임 -->
+- Worker integrates tests and code into hooks/components
+<!-- Worker가 테스트와 코드를 훅/컴포넌트에 통합 -->
+- Worker refactors integrated code while keeping tests green
+<!-- Worker가 테스트를 그린 상태로 유지하며 통합 코드 리팩터링 -->
+- Worker runs pre-commit validation (reference `doc/checklist.md`)
+<!-- Worker가 커밋 전 검증 실행 (`doc/checklist.md` 참조) -->
+  - CRLF check: `git diff --check`
+  - TypeScript: `npm run lint:tsc`
+  - ESLint: `npm run lint:eslint`
+  - Tests: `npm test -- --run`
+- Worker verifies end-to-end functionality
+<!-- Worker가 엔드투엔드 기능 검증 -->
+- Worker ensures architectural consistency
+<!-- Worker가 아키텍처 일관성 보장 -->
 
 ## Deliverables
 <!-- 산출물 -->
@@ -161,12 +210,16 @@ Worker ensures overall quality through:
 <!-- 세월이: 작업 위임 전에 반드시 과거 코드 패턴, 과거 해결책, TDD 패턴, 리팩토링 기법, 구현 가이드를 확인해야 합니다. 세월이가 검증된 접근 방식을 제공하고 과거 실수를 반복하지 않도록 합니다 -->
 - **Test Team (테스트팀원)**: Delegates test writing, receives test files
 <!-- 테스트 팀 (테스트팀원): 테스트 작성 위임, 테스트 파일 받음 -->
-  - Reference: `src/.cursor/agents/company/test-team.md`
-  <!-- 참조: `src/.cursor/agents/company/test-team.md` -->
+  - Test Team reads: `company/test-team.md` for guidelines
+  <!-- 테스트 팀 읽기: 가이드라인을 위해 `company/test-team.md` -->
+  - Test Team references: `doc/test-guidelines.md` for test structure and vitest setup
+  <!-- 테스트 팀 참조: 테스트 구조 및 vitest 설정을 위해 `doc/test-guidelines.md` -->
 - **Feature Team (기능팀원)**: Delegates implementation, receives code files
 <!-- 기능 팀 (기능팀원): 구현 위임, 코드 파일 받음 -->
-  - Reference: `src/.cursor/agents/company/feature-team.md`
-  <!-- 참조: `src/.cursor/agents/company/feature-team.md` -->
+  - Feature Team reads: `company/feature-team.md` for implementation approach
+  <!-- 기능 팀 읽기: 구현 접근 방식을 위해 `company/feature-team.md` -->
+  - Feature Team delivers: Clean code that passes tests to Worker
+  <!-- 기능 팀 전달: Worker에게 테스트를 통과하는 깨끗한 코드 전달 -->
 
 ## Project-Specific Requirements
 <!-- 프로젝트별 요구사항 -->

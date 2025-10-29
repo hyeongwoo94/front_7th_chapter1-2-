@@ -36,10 +36,25 @@ Automatically execute the following rules for each conversation:
 1. Answer user's question
    <!-- 사용자의 질문에 답변 -->
 
-2. Save question and answer to `src/.cursor/agents/histroy/` folder with date-based folder structure
-   <!-- 질문과 답변을 날짜별 폴더 구조로 `src/.cursor/agents/histroy/` 폴더에 저장 -->
-
-3. **Folder and file naming rule**: `MMDD/MMDD_i.md` (date-folder/month-day_sequence)
+2. **Save based on conversation type**:
+   <!-- 대화 유형에 따라 저장: -->
+   
+   **A. Review Request** (when user says "리뷰해"):
+   <!-- 리뷰 요청 (사용자가 "리뷰해"라고 말할 때): -->
+   - Save to `src/.cursor/agents/review/` folder
+   <!-- `src/.cursor/agents/review/` 폴더에 저장 -->
+   - File naming: `YYYY-MM-DD_task-description.md`
+   <!-- 파일명: `YYYY-MM-DD_작업설명.md` -->
+   - Example: `2025-10-29_overlap-dialog-bug-fix.md`
+   <!-- 예시: `2025-10-29_overlap-dialog-bug-fix.md` -->
+   - Content: Formal code review report with Manager role
+   <!-- 내용: Manager 역할로 공식 코드 리뷰 보고서 -->
+   
+   **B. Regular Conversation** (all other cases):
+   <!-- 일반 대화 (다른 모든 경우): -->
+   - Save to `src/.cursor/agents/histroy/` folder with date-based folder structure
+   <!-- 날짜별 폴더 구조로 `src/.cursor/agents/histroy/` 폴더에 저장 -->
+   - **Folder and file naming rule**: `MMDD/MMDD_i.md` (date-folder/month-day_sequence)
    <!-- 폴더 및 파일명 규칙: `MMDD/MMDD_i.md` (날짜폴더/월일_순번) -->
    - Example: October 27th first file → `1027/1027_1.md`
    <!-- 예시: 10월 27일 첫 번째 파일 → `1027/1027_1.md` -->
@@ -50,8 +65,8 @@ Automatically execute the following rules for each conversation:
    - **New date**: Automatically create new MMDD folder
    <!-- 새 날짜: 자동으로 새 MMDD 폴더 생성 -->
 
-   **Auto-renumbering rule**: When a history file is deleted, automatically renumber remaining files in that date folder
-   <!-- 자동 순번 재정렬 규칙: 히스토리 파일이 삭제되면 해당 날짜 폴더 내의 남은 파일들의 순번을 자동으로 재정렬 -->
+   **Auto-renumbering rule** (histroy folder only): When a history file is deleted, automatically renumber remaining files in that date folder
+   <!-- 자동 순번 재정렬 규칙 (histroy 폴더만): 히스토리 파일이 삭제되면 해당 날짜 폴더 내의 남은 파일들의 순번을 자동으로 재정렬 -->
    - If `1028/1028_3.md` is deleted, renumber: `1028/1028_4.md` → `1028/1028_3.md`, `1028/1028_5.md` → `1028/1028_4.md`
    <!-- `1028/1028_3.md`가 삭제되면: `1028/1028_4.md` → `1028/1028_3.md`, `1028/1028_5.md` → `1028/1028_4.md`로 재정렬 -->
    - **Purpose**: Maintain sequential numbering without gaps for better readability within each date folder
@@ -65,8 +80,11 @@ Automatically execute the following rules for each conversation:
      After:  1028/1028_1.md, 1028/1028_2.md, 1028/1028_3.md, 1028/1028_4.md  (renumbered)
      ```
 
-4. **File content format**:
+3. **File content format**:
    <!-- 파일 내용 형식: -->
+   
+   **For histroy (regular conversation)**:
+   <!-- histroy용 (일반 대화): -->
    ```markdown
    질문 (원본):
    YYYY-MM-DD
@@ -75,6 +93,24 @@ Automatically execute the following rules for each conversation:
    
    답변:
    [AI 답변]
+   ```
+   
+   **For review (code review)**:
+   <!-- review용 (코드 리뷰): -->
+   ```markdown
+   # Code Review Report
+   
+   **Date**: YYYY-MM-DD
+   **Reviewer**: Manager (관리자)
+   **Reviewed By**: Worker (노동자)
+   **Task**: [Task description]
+   **PRD**: [PRD file path if applicable]
+   
+   ## Review Summary
+   [Comprehensive review content]
+   
+   ## Final Verdict
+   ✅ APPROVED / ⚠️ NEEDS REVISION / ❌ REJECTED
    ```
 
 ## 3. Agent System & Roles

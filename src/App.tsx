@@ -848,7 +848,8 @@ function App() {
                     <Stack direction="row" spacing={1} alignItems="center">
                       {notifiedEvents.includes(event.id) && <Notifications color="error" />}
                       <Typography
-                        fontWeight={notifiedEvents.includes(event.id) ? 'bold' : 'normal'}
+                        fontWeight="bold"
+                        fontSize="18px"
                         color={notifiedEvents.includes(event.id) ? 'error' : 'inherit'}
                       >
                         {event.title}

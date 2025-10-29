@@ -14,7 +14,7 @@ export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
     http.post('/api/events', async ({ request }) => {
       const newEvent = (await request.json()) as Event;
       newEvent.id = String(mockEvents.length + 1); // 간단한 ID 생성
-      
+
       mockEvents.push(newEvent);
       return HttpResponse.json(newEvent, { status: 201 });
     })

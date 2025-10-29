@@ -98,6 +98,26 @@ const getRepeatIcon = (repeatType: RepeatType) => {
   }
 };
 
+const getRepeatBackgroundColor = (repeatType: RepeatType, isNotified: boolean): string => {
+  // Notification takes priority
+  // <!-- 알림이 최우선 -->
+  if (isNotified) return '#ffebee';
+
+  switch (repeatType) {
+    case 'daily':
+      return '#e3f2fd'; // Light blue
+    case 'weekly':
+      return '#f3e5f5'; // Light purple
+    case 'monthly':
+      return '#fff3e0'; // Light orange
+    case 'yearly':
+      return '#e8f5e9'; // Light green
+    case 'none':
+    default:
+      return '#f5f5f5'; // Gray (non-repeating)
+  }
+};
+
 function App() {
   const {
     title,
@@ -163,6 +183,13 @@ function App() {
       return;
     }
 
+    // Validate repeat end date is required for repeating events
+    // <!-- 반복 일정의 경우 종료 날짜 필수 검증 -->
+    if (isRepeating && !repeatEndDate) {
+      enqueueSnackbar('반복 일정의 종료 날짜를 선택해주세요.', { variant: 'error' });
+      return;
+    }
+
     const eventData: Event | EventForm = editingEvent
       ? {
           // Editing: Preserve original event with metadata
@@ -179,7 +206,7 @@ function App() {
             ...editingEvent.repeat, // Preserve metadata
             type: isRepeating ? repeatType : 'none',
             interval: repeatInterval,
-            endDate: repeatEndDate || '2025-12-31',
+            endDate: repeatEndDate,
           },
           notificationTime,
         }
@@ -196,7 +223,7 @@ function App() {
           repeat: {
             type: isRepeating ? repeatType : 'none',
             interval: repeatInterval,
-            endDate: repeatEndDate || '2025-12-31',
+            endDate: repeatEndDate,
           },
           notificationTime,
         };
@@ -426,7 +453,10 @@ function App() {
                             sx={{
                               p: 0.5,
                               my: 0.5,
-                              backgroundColor: isNotified ? '#ffebee' : '#f5f5f5',
+                              backgroundColor: getRepeatBackgroundColor(
+                                event.repeat?.type || 'none',
+                                isNotified
+                              ),
                               borderRadius: 1,
                               fontWeight: isNotified ? 'bold' : 'normal',
                               color: isNotified ? '#d32f2f' : 'inherit',
@@ -523,7 +553,10 @@ function App() {
                                   sx={{
                                     p: 0.5,
                                     my: 0.5,
-                                    backgroundColor: isNotified ? '#ffebee' : '#f5f5f5',
+                                    backgroundColor: getRepeatBackgroundColor(
+                                      event.repeat?.type || 'none',
+                                      isNotified
+                                    ),
                                     borderRadius: 1,
                                     fontWeight: isNotified ? 'bold' : 'normal',
                                     color: isNotified ? '#d32f2f' : 'inherit',
@@ -705,18 +738,21 @@ function App() {
 
           {isRepeating && (
             <FormControl fullWidth>
-              <FormLabel htmlFor="repeat-end-date">반복 종료 날짜</FormLabel>
+              <FormLabel htmlFor="repeat-end-date" required>
+                반복 종료 날짜
+              </FormLabel>
               <TextField
                 id="repeat-end-date"
                 type="date"
                 size="small"
+                required
                 value={repeatEndDate}
                 onChange={(e) => setRepeatEndDate(e.target.value)}
                 error={repeatEndDate !== '' && date !== '' && repeatEndDate < date}
                 helperText={
                   repeatEndDate !== '' && date !== '' && repeatEndDate < date
                     ? '종료 날짜는 시작 날짜 이후여야 합니다'
-                    : '(선택사항: 2025-12-31)'
+                    : '반복 일정의 종료 날짜를 선택해주세요 (필수)'
                 }
               />
             </FormControl>
@@ -944,7 +980,7 @@ function App() {
                           ...editingEvent.repeat,
                           type: isRepeating ? repeatType : 'none',
                           interval: repeatInterval,
-                          endDate: repeatEndDate || '2025-12-31',
+                          endDate: repeatEndDate,
                         },
                         notificationTime,
                       }
@@ -959,7 +995,7 @@ function App() {
                         repeat: {
                           type: isRepeating ? repeatType : 'none',
                           interval: repeatInterval,
-                          endDate: repeatEndDate || '2025-12-31',
+                          endDate: repeatEndDate,
                         },
                         notificationTime,
                       }

@@ -5,6 +5,10 @@ import Delete from '@mui/icons-material/LocationCity';
 import Edit from '@mui/icons-material/LocationCity';
 import Close from '@mui/icons-material/LocationCity';
 import Repeat from '@mui/icons-material/Repeat';
+import Today from '@mui/icons-material/Today';
+import CalendarViewWeek from '@mui/icons-material/CalendarViewWeek';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
+import EventIcon from '@mui/icons-material/Event';
 import {
   Alert,
   AlertTitle,
@@ -53,7 +57,7 @@ import {
   getWeeksAtMonth,
 } from './utils/dateUtils';
 import { findOverlappingEvents } from './utils/eventOverlap';
-import { hasRecurringNormalConflict } from './utils/overlapBypassLogic';
+import { shouldAllowOverlapBypass } from './utils/overlapBypassLogic';
 import { getTimeErrorMessage } from './utils/timeValidation';
 
 const categories = ['업무', '개인', '가족', '기타'];
@@ -74,6 +78,25 @@ const notificationOptions = [
   { value: 120, label: '2시간 전' },
   { value: 1440, label: '1일 전' },
 ];
+
+/**
+ * Get appropriate icon component based on repeat type
+ * 반복 타입에 따라 적절한 아이콘 컴포넌트 반환
+ */
+const getRepeatIcon = (repeatType: RepeatType) => {
+  switch (repeatType) {
+    case 'daily':
+      return Today;
+    case 'weekly':
+      return CalendarViewWeek;
+    case 'monthly':
+      return CalendarMonth;
+    case 'yearly':
+      return EventIcon;
+    default:
+      return Repeat;
+  }
+};
 
 function App() {
   const {
@@ -185,7 +208,7 @@ function App() {
 
     const overlapping = findOverlappingEvents(eventData, events);
     if (overlapping.length > 0) {
-      const canBypass = hasRecurringNormalConflict(eventData, overlapping);
+      const canBypass = shouldAllowOverlapBypass(eventData, overlapping);
       setOverlappingEvents(overlapping);
       setAllowBypass(canBypass);
       setIsOverlapDialogOpen(true);
@@ -222,7 +245,7 @@ function App() {
     // <!-- 다이얼로그 닫은 후 오버랩 체크 -->
     const overlapping = findOverlappingEvents(singleEventData, events);
     if (overlapping.length > 0) {
-      const canBypass = hasRecurringNormalConflict(singleEventData, overlapping);
+      const canBypass = shouldAllowOverlapBypass(singleEventData, overlapping);
       setOverlappingEvents(overlapping);
       setAllowBypass(canBypass);
       setIsOverlapDialogOpen(true);
@@ -260,7 +283,7 @@ function App() {
     // <!-- 오버랩 체크 -->
     const overlapping = findOverlappingEvents(allEditData, events);
     if (overlapping.length > 0) {
-      const canBypass = hasRecurringNormalConflict(allEditData, overlapping);
+      const canBypass = shouldAllowOverlapBypass(allEditData, overlapping);
       setOverlappingEvents(overlapping);
       setAllowBypass(canBypass);
       setIsOverlapDialogOpen(true);
@@ -332,9 +355,10 @@ function App() {
                           >
                             <Stack direction="row" spacing={1} alignItems="center">
                               {isNotified && <Notifications fontSize="small" />}
-                              {event.repeat.type !== 'none' && (
-                                <Repeat fontSize="small" data-testid="RepeatIcon" />
-                              )}
+                              {event.repeat.type !== 'none' && (() => {
+                                const RepeatIconComponent = getRepeatIcon(event.repeat.type);
+                                return <RepeatIconComponent fontSize="small" data-testid="RepeatIcon" />;
+                              })()}
                               <Typography
                                 variant="caption"
                                 noWrap
@@ -422,9 +446,10 @@ function App() {
                                 >
                                   <Stack direction="row" spacing={1} alignItems="center">
                                     {isNotified && <Notifications fontSize="small" />}
-                                    {event.repeat.type !== 'none' && (
-                                      <Repeat fontSize="small" data-testid="RepeatIcon" />
-                                    )}
+                                    {event.repeat.type !== 'none' && (() => {
+                                      const RepeatIconComponent = getRepeatIcon(event.repeat.type);
+                                      return <RepeatIconComponent fontSize="small" data-testid="RepeatIcon" />;
+                                    })()}
                                     <Typography
                                       variant="caption"
                                       noWrap

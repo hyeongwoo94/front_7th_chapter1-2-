@@ -1,7 +1,7 @@
 import { Event, EventForm, RepeatType } from '../../types';
-import { hasRecurringNormalConflict } from '../../utils/overlapBypassLogic';
+import { shouldAllowOverlapBypass } from '../../utils/overlapBypassLogic';
 
-describe('hasRecurringNormalConflict >', () => {
+describe('shouldAllowOverlapBypass >', () => {
   const createEvent = (id: string, repeatType: RepeatType = 'none'): Event => ({
     id,
     title: `Event ${id}`,
@@ -20,7 +20,7 @@ describe('hasRecurringNormalConflict >', () => {
       const newEvent = createEvent('new', 'none');
       const overlappingEvents = [createEvent('1', 'none'), createEvent('2', 'none')];
 
-      const result = hasRecurringNormalConflict(newEvent, overlappingEvents);
+      const result = shouldAllowOverlapBypass(newEvent, overlappingEvents);
 
       expect(result).toBe(false);
     });
@@ -31,7 +31,7 @@ describe('hasRecurringNormalConflict >', () => {
       const newEvent = createEvent('new', 'daily');
       const overlappingEvents = [createEvent('1', 'none')];
 
-      const result = hasRecurringNormalConflict(newEvent, overlappingEvents);
+      const result = shouldAllowOverlapBypass(newEvent, overlappingEvents);
 
       expect(result).toBe(true);
     });
@@ -40,32 +40,32 @@ describe('hasRecurringNormalConflict >', () => {
       const newEvent = createEvent('new', 'none');
       const overlappingEvents = [createEvent('1', 'daily')];
 
-      const result = hasRecurringNormalConflict(newEvent, overlappingEvents);
+      const result = shouldAllowOverlapBypass(newEvent, overlappingEvents);
 
       expect(result).toBe(true);
     });
 
-    it('여러 겹침 중 하나라도 반복+일반 조합이면 true를 반환한다', () => {
+    it('여러 겹침 중 하나라도 반복 일정이 있으면 true를 반환한다', () => {
       const newEvent = createEvent('new', 'daily');
       const overlappingEvents = [
-        createEvent('1', 'daily'), // 반복+반복
+        createEvent('1', 'daily'), // 반복+반복 ✓
         createEvent('2', 'none'), // 반복+일반 ✓
       ];
 
-      const result = hasRecurringNormalConflict(newEvent, overlappingEvents);
+      const result = shouldAllowOverlapBypass(newEvent, overlappingEvents);
 
       expect(result).toBe(true);
     });
   });
 
   describe('반복 + 반복 일정 겹침', () => {
-    it('반복 일정끼리 겹치면 false를 반환한다 (bypass 불가)', () => {
+    it('반복 일정끼리 겹치면 true를 반환한다 (bypass 허용)', () => {
       const newEvent = createEvent('new', 'daily');
       const overlappingEvents = [createEvent('1', 'weekly'), createEvent('2', 'monthly')];
 
-      const result = hasRecurringNormalConflict(newEvent, overlappingEvents);
+      const result = shouldAllowOverlapBypass(newEvent, overlappingEvents);
 
-      expect(result).toBe(false);
+      expect(result).toBe(true);
     });
   });
 
@@ -74,7 +74,7 @@ describe('hasRecurringNormalConflict >', () => {
       const newEvent = createEvent('new', 'daily');
       const overlappingEvents: Event[] = [];
 
-      const result = hasRecurringNormalConflict(newEvent, overlappingEvents);
+      const result = shouldAllowOverlapBypass(newEvent, overlappingEvents);
 
       expect(result).toBe(false);
     });
@@ -93,7 +93,7 @@ describe('hasRecurringNormalConflict >', () => {
       };
       const overlappingEvents = [createEvent('1', 'daily')];
 
-      const result = hasRecurringNormalConflict(newEventForm, overlappingEvents);
+      const result = shouldAllowOverlapBypass(newEventForm, overlappingEvents);
 
       expect(result).toBe(true);
     });

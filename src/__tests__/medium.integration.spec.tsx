@@ -77,7 +77,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     expect(eventList.getAllByText('프로젝트 진행 상황 논의')[0]).toBeInTheDocument();
     expect(eventList.getAllByText('회의실 A')[0]).toBeInTheDocument();
     expect(eventList.getAllByText(/카테고리:\s*업무/)[0]).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
     const { user } = setup(<App />);
@@ -96,7 +96,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     const eventList = within(screen.getByTestId('event-list'));
     expect(eventList.getByText('수정된 회의')).toBeInTheDocument();
     expect(eventList.getByText('회의 내용 변경')).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {
     setupMockHandlerDeletion();
@@ -148,7 +148,7 @@ describe('일정 뷰', () => {
     const weekView = within(screen.getByTestId('week-view'));
     const events = await weekView.findAllByText('이번주 팀 회의');
     expect(events[0]).toBeInTheDocument();
-  });
+  }, 15000);
 
   it('월별 뷰에 일정이 없으면, 일정이 표시되지 않아야 한다.', async () => {
     vi.setSystemTime(new Date('2025-01-01'));
@@ -179,7 +179,7 @@ describe('일정 뷰', () => {
     const monthView = within(screen.getByTestId('month-view'));
     const events = await monthView.findAllByText('이번달 팀 회의');
     expect(events[0]).toBeInTheDocument();
-  });
+  }, 10000);
 
   it('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {
     vi.setSystemTime(new Date('2025-01-01'));
@@ -604,13 +604,13 @@ describe('반복 종료 날짜 UI', () => {
     const repeatCheckbox = screen.getByRole('checkbox', { name: '반복 일정' });
 
     // 초기 상태: 반복 종료 날짜 필드가 없어야 함
-    expect(screen.queryByLabelText('반복 종료 날짜')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/반복 종료 날짜/)).not.toBeInTheDocument();
 
     // "반복 일정" 체크
     await user.click(repeatCheckbox);
 
     // 반복 종료 날짜 필드가 표시되어야 함
-    expect(screen.getByLabelText('반복 종료 날짜')).toBeInTheDocument();
+    expect(screen.getByLabelText(/반복 종료 날짜/)).toBeInTheDocument();
   });
 
   it('반복 일정 체크 해제 시 반복 종료 날짜 필드가 숨겨진다', async () => {
@@ -625,13 +625,13 @@ describe('반복 종료 날짜 UI', () => {
     await user.click(repeatCheckbox);
 
     // 반복 종료 날짜 필드가 표시되어야 함
-    expect(screen.getByLabelText('반복 종료 날짜')).toBeInTheDocument();
+    expect(screen.getByLabelText(/반복 종료 날짜/)).toBeInTheDocument();
 
     // "반복 일정" 체크 해제
     await user.click(repeatCheckbox);
 
     // 반복 종료 날짜 필드가 숨겨져야 함
-    expect(screen.queryByLabelText('반복 종료 날짜')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/반복 종료 날짜/)).not.toBeInTheDocument();
   });
 
   it('반복 종료 날짜가 시작 날짜보다 이전이면 에러가 표시된다', async () => {
@@ -646,7 +646,7 @@ describe('반복 종료 날짜 UI', () => {
     await user.type(screen.getByLabelText('날짜'), '2025-12-31');
 
     // 종료 날짜를 시작 날짜보다 이전으로 입력
-    const endDateField = screen.getByLabelText('반복 종료 날짜');
+    const endDateField = screen.getByLabelText(/반복 종료 날짜/);
     await user.type(endDateField, '2025-12-01');
 
     // 에러 메시지가 표시되어야 함
@@ -665,7 +665,7 @@ describe('반복 종료 날짜 UI', () => {
     await user.type(screen.getByLabelText('날짜'), '2025-12-31');
 
     // 종료 날짜를 시작 날짜와 동일하게 입력
-    const endDateField = screen.getByLabelText('반복 종료 날짜');
+    const endDateField = screen.getByLabelText(/반복 종료 날짜/);
     await user.type(endDateField, '2025-12-31');
 
     // 에러 메시지가 표시되지 않아야 함

@@ -27,6 +27,7 @@ export function createRecurringEvent(overrides?: Partial<Event>): Event {
     repeat: overrides?.repeat || {
       type: 'weekly',
       interval: 1,
+      endDate: '2030-12-31', // Default end date for recurring events
     },
     notificationTime: overrides?.notificationTime || 10,
   };
@@ -64,7 +65,7 @@ export function createDailyRecurringEvent(overrides?: Partial<Event>): Event {
     endTime: '09:30',
     description: '일일 미팅',
     location: '온라인',
-    repeat: { type: 'daily', interval: 1 },
+    repeat: { type: 'daily', interval: 1, endDate: '2030-12-31' },
     ...overrides,
   });
 }

@@ -594,3 +594,183 @@ describe('반복 일정 수정 시 단일/전체 선택 기능', () => {
     expect(updatedEvent).toBeInTheDocument();
   }, 10000);
 });
+
+describe('반복 종료 날짜 UI', () => {
+  it('반복 일정 체크 시 반복 종료 날짜 필드가 표시된다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    // "반복 일정" 체크박스 찾기
+    const repeatCheckbox = screen.getByRole('checkbox', { name: '반복 일정' });
+
+    // 초기 상태: 반복 종료 날짜 필드가 없어야 함
+    expect(screen.queryByLabelText('반복 종료 날짜')).not.toBeInTheDocument();
+
+    // "반복 일정" 체크
+    await user.click(repeatCheckbox);
+
+    // 반복 종료 날짜 필드가 표시되어야 함
+    expect(screen.getByLabelText('반복 종료 날짜')).toBeInTheDocument();
+  });
+
+  it('반복 일정 체크 해제 시 반복 종료 날짜 필드가 숨겨진다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    // "반복 일정" 체크박스 찾기
+    const repeatCheckbox = screen.getByRole('checkbox', { name: '반복 일정' });
+
+    // "반복 일정" 체크
+    await user.click(repeatCheckbox);
+
+    // 반복 종료 날짜 필드가 표시되어야 함
+    expect(screen.getByLabelText('반복 종료 날짜')).toBeInTheDocument();
+
+    // "반복 일정" 체크 해제
+    await user.click(repeatCheckbox);
+
+    // 반복 종료 날짜 필드가 숨겨져야 함
+    expect(screen.queryByLabelText('반복 종료 날짜')).not.toBeInTheDocument();
+  });
+
+  it('반복 종료 날짜가 시작 날짜보다 이전이면 에러가 표시된다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    // 반복 일정 체크
+    await user.click(screen.getByRole('checkbox', { name: '반복 일정' }));
+
+    // 시작 날짜 입력
+    await user.type(screen.getByLabelText('날짜'), '2025-12-31');
+
+    // 종료 날짜를 시작 날짜보다 이전으로 입력
+    const endDateField = screen.getByLabelText('반복 종료 날짜');
+    await user.type(endDateField, '2025-12-01');
+
+    // 에러 메시지가 표시되어야 함
+    expect(screen.getByText(/종료 날짜는 시작 날짜 이후여야 합니다/i)).toBeInTheDocument();
+  });
+
+  it('반복 종료 날짜가 시작 날짜와 같으면 에러가 표시되지 않는다', async () => {
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    // 반복 일정 체크
+    await user.click(screen.getByRole('checkbox', { name: '반복 일정' }));
+
+    // 시작 날짜 입력
+    await user.type(screen.getByLabelText('날짜'), '2025-12-31');
+
+    // 종료 날짜를 시작 날짜와 동일하게 입력
+    const endDateField = screen.getByLabelText('반복 종료 날짜');
+    await user.type(endDateField, '2025-12-31');
+
+    // 에러 메시지가 표시되지 않아야 함
+    expect(screen.queryByText(/종료 날짜는 시작 날짜 이후여야 합니다/i)).not.toBeInTheDocument();
+  });
+});
+
+describe('반복 일정 종료 날짜 통합 테스트', () => {
+  it('endDate가 있는 반복 일정이 종료 날짜까지만 Week View에 표시된다', async () => {
+    const recurringEventWithEndDate: Event = {
+      id: '1',
+      title: '기간 제한 회의',
+      date: '2025-10-01', // 수요일
+      startTime: '10:00',
+      endTime: '11:00',
+      description: '주간 회의',
+      location: '회의실 A',
+      category: '업무',
+      repeat: {
+        type: 'weekly',
+        interval: 1,
+        endDate: '2025-10-15', // 2주 후까지만
+      },
+      notificationTime: 10,
+    };
+
+    // MSW mock 설정
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({ events: [recurringEventWithEndDate] });
+      })
+    );
+
+    const { user } = setup(<App />);
+    await screen.findByText('일정 로딩 완료!');
+
+    // Week View로 전환
+    await user.click(within(screen.getByLabelText('뷰 타입 선택')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: 'week-option' }));
+
+    // 10/01 (첫 번째 주)에 이벤트가 표시되는지 확인
+    expect(screen.getAllByText('기간 제한 회의')[0]).toBeInTheDocument();
+
+    // 다음 주 (10/08)로 이동
+    const nextButton = screen.getByRole('button', { name: 'Next' });
+    await user.click(nextButton);
+
+    // 10/08 (두 번째 주)에도 이벤트가 표시되는지 확인
+    expect(screen.getAllByText('기간 제한 회의')[0]).toBeInTheDocument();
+
+    // 다음 주 (10/15)로 이동
+    await user.click(nextButton);
+
+    // 10/15 (세 번째 주, endDate 당일)에도 이벤트가 표시되는지 확인
+    expect(screen.getAllByText('기간 제한 회의')[0]).toBeInTheDocument();
+
+    // 다음 주 (10/22)로 이동
+    await user.click(nextButton);
+
+    // 10/22 (네 번째 주, endDate 이후)에는 이벤트가 표시되지 않아야 함
+    expect(screen.queryByText('기간 제한 회의')).not.toBeInTheDocument();
+  });
+
+  it('endDate가 있는 반복 일정이 종료 날짜까지만 Month View에 표시된다', async () => {
+    const recurringEventWithEndDate: Event = {
+      id: '1',
+      title: '월간 리뷰',
+      date: '2025-10-01',
+      startTime: '14:00',
+      endTime: '15:00',
+      description: '월간 리뷰 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: {
+        type: 'weekly',
+        interval: 1,
+        endDate: '2025-10-15',
+      },
+      notificationTime: 10,
+    };
+
+    // MSW mock 설정
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({ events: [recurringEventWithEndDate] });
+      })
+    );
+
+    const { user } = setup(<App />);
+    await screen.findByText('일정 로딩 완료!');
+
+    // Month View로 전환 (기본 view는 month이므로 전환 불필요)
+    await user.click(within(screen.getByLabelText('뷰 타입 선택')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: 'month-option' }));
+
+    // 10월에 3개의 이벤트가 표시되어야 함 (10/01, 10/08, 10/15)
+    const monthViewEvents = screen.getAllByText('월간 리뷰');
+    expect(monthViewEvents.length).toBeGreaterThanOrEqual(3);
+
+    // 다음 달 (11월)로 이동
+    const nextButton = screen.getByRole('button', { name: 'Next' });
+    await user.click(nextButton);
+
+    // 11월에는 이벤트가 표시되지 않아야 함 (endDate가 10/15이므로)
+    expect(screen.queryByText('월간 리뷰')).not.toBeInTheDocument();
+  });
+});

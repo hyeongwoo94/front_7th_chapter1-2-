@@ -1,14 +1,14 @@
-import Notifications from '@mui/icons-material/LocationCity';
-import ChevronLeft from '@mui/icons-material/LocationCity';
-import ChevronRight from '@mui/icons-material/LocationCity';
-import Delete from '@mui/icons-material/LocationCity';
-import Edit from '@mui/icons-material/LocationCity';
-import Close from '@mui/icons-material/LocationCity';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
+import CalendarViewWeek from '@mui/icons-material/CalendarViewWeek';
+import ChevronLeft from '@mui/icons-material/ChevronLeft';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import Close from '@mui/icons-material/Close';
+import Delete from '@mui/icons-material/Delete';
+import Edit from '@mui/icons-material/Edit';
+import EventIcon from '@mui/icons-material/Event';
+import Notifications from '@mui/icons-material/Notifications';
 import Repeat from '@mui/icons-material/Repeat';
 import Today from '@mui/icons-material/Today';
-import CalendarViewWeek from '@mui/icons-material/CalendarViewWeek';
-import CalendarMonth from '@mui/icons-material/CalendarMonth';
-import EventIcon from '@mui/icons-material/Event';
 import {
   Alert,
   AlertTitle,
@@ -119,7 +119,7 @@ function App() {
     repeatInterval,
     // setRepeatInterval, // TODO: Add interval UI
     repeatEndDate,
-    // setRepeatEndDate, // TODO: Add end date UI
+    setRepeatEndDate,
     notificationTime,
     setNotificationTime,
     startTimeError,
@@ -604,6 +604,25 @@ function App() {
                   </MenuItem>
                 ))}
               </Select>
+            </FormControl>
+          )}
+
+          {isRepeating && (
+            <FormControl fullWidth>
+              <FormLabel htmlFor="repeat-end-date">반복 종료 날짜</FormLabel>
+              <TextField
+                id="repeat-end-date"
+                type="date"
+                size="small"
+                value={repeatEndDate}
+                onChange={(e) => setRepeatEndDate(e.target.value)}
+                error={repeatEndDate !== '' && date !== '' && repeatEndDate < date}
+                helperText={
+                  repeatEndDate !== '' && date !== '' && repeatEndDate < date
+                    ? '종료 날짜는 시작 날짜 이후여야 합니다'
+                    : '(선택사항: 비워두면 무한 반복)'
+                }
+              />
             </FormControl>
           )}
 

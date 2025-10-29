@@ -806,5 +806,209 @@ export function hasRecurringNormalConflict(
 
 ---
 
-**Memory Version**: 2.1 (Review Learning Added 2024-10-29)
-<!-- 메모리 버전: 2.1 (리뷰 학습 추가 2024-10-29) -->
+## Review Patterns (Learned from review/ folder)
+<!-- 리뷰 패턴 (review/ 폴더에서 학습) -->
+
+### Error Recovery Pattern: Same Error Twice Protocol (2025-10-29)
+<!-- 오류 복구 패턴: 동일 오류 2번 프로토콜 (2025-10-29) -->
+
+**Source**: `review/2025-10-29_recurring-event-edit-options-attempt.md`
+
+**Problem**: Repeating same error multiple times, wasting time on wrong approach
+<!-- 문제: 같은 오류를 여러 번 반복하여 잘못된 접근에 시간 낭비 -->
+
+**Root Cause**: No protocol to stop and analyze when stuck
+<!-- 근본 원인: 막혔을 때 멈추고 분석하는 프로토콜 없음 -->
+
+**Solution - Error Recovery Process**:
+<!-- 해결책 - 오류 복구 프로세스: -->
+```
+Same error occurs 2 times:
+1. ⏸️  STOP work immediately
+2. 📝 Write Review document (root cause analysis)
+3. 📄 UPDATE PRD:
+   - Section 3: Prerequisites
+   - Section 4: Error Prevention
+   - Section 8: Known Issues & Solutions
+4. ▶️  RESTART with updated PRD
+
+Result: First try success after PRD update
+```
+
+**Anti-Pattern**: Keep trying similar approaches hoping for different results
+<!-- 안티패턴: 다른 결과를 기대하며 유사한 접근을 계속 시도 -->
+
+**Lesson**: Failing twice = Wrong approach. Document, update PRD, restart.
+<!-- 교훈: 2번 실패 = 잘못된 접근. 문서화, PRD 업데이트, 재시작. -->
+
+**Applies To**: King (triggers protocol), Planner (updates PRD), All agents (must follow)
+<!-- 적용 대상: King(프로토콜 트리거), Planner(PRD 업데이트), 모든 에이전트(필수 준수) -->
+
+---
+
+### Architecture Pattern: Data Model Confusion (2025-10-29)
+<!-- 아키텍처 패턴: 데이터 모델 혼란 (2025-10-29) -->
+
+**Source**: `review/2025-10-29_recurring-event-delete-final-fix.md`
+
+**Problem**: Code using "fake IDs" for display, but backend expects real DB IDs
+<!-- 문제: 코드가 디스플레이용 "가짜 ID"를 사용하지만 백엔드는 실제 DB ID를 예상 -->
+
+**Root Cause**: Mismatch between frontend's display model vs backend's storage model
+<!-- 근본 원인: 프론트엔드 디스플레이 모델 vs 백엔드 저장소 모델 불일치 -->
+
+**Two Models**:
+<!-- 두 가지 모델: -->
+```
+Template Model:
+- DB: 1 original event
+- Frontend: Generate multiple display instances
+- Use: originalEventId for all operations
+
+Instance Model:
+- DB: Multiple events with same repeat.id
+- Frontend: Use events as-is
+- Use: Specific event.id for single, repeat.id for all
+```
+
+**Solution**: Choose ONE model consistently
+<!-- 해결책: 하나의 모델을 일관되게 선택 -->
+1. Check `server.js` to confirm backend model
+2. Check existing data in `realEvents.json`
+3. Align frontend code with backend model
+4. Document chosen model in PRD
+
+**Anti-Pattern**: Mixing both models in same codebase
+<!-- 안티패턴: 같은 코드베이스에서 두 모델 혼합 -->
+
+**Lesson**: Data model confusion causes hard-to-debug issues. Document and verify model first.
+<!-- 교훈: 데이터 모델 혼란은 디버그하기 어려운 문제를 유발. 먼저 모델을 문서화하고 검증. -->
+
+**Applies To**: Planner (document model), Worker (implement consistently), Manager (verify alignment)
+<!-- 적용 대상: Planner(모델 문서화), Worker(일관되게 구현), Manager(정렬 검증) -->
+
+---
+
+### Implementation Pattern: State Update Timing Issues (2025-10-29)
+<!-- 구현 패턴: 상태 업데이트 타이밍 이슈 (2025-10-29) -->
+
+**Source**: `review/2025-10-29_recurring-event-edit-issues.md`
+
+**Problem**: `setEditingEvent(null)` called but `editing` still true in `saveEvent`
+<!-- 문제: `setEditingEvent(null)` 호출했지만 `saveEvent`에서 `editing`이 여전히 true -->
+
+**Root Cause**: React state updates are asynchronous, not immediate
+<!-- 근본 원인: React 상태 업데이트는 비동기이며 즉시 반영되지 않음 -->
+
+**Solution**: Don't rely on state updates within same function
+<!-- 해결책: 같은 함수 내에서 상태 업데이트에 의존하지 말 것 -->
+```typescript
+// ❌ BAD: Expects state to update immediately
+setEditingEvent(null);
+await saveEvent(eventData);  // Still uses old editingEvent
+
+// ✅ GOOD: Direct API call, bypass state
+const response = await fetch('/api/events', {
+  method: 'POST',
+  body: JSON.stringify(eventData)
+});
+setEditingEvent(null);  // Update after
+```
+
+**Anti-Pattern**: Assuming React state updates synchronously
+<!-- 안티패턴: React 상태가 동기적으로 업데이트된다고 가정 -->
+
+**Lesson**: For critical logic, use direct values, not state-dependent hooks
+<!-- 교훈: 중요한 로직의 경우 상태 의존 훅이 아닌 직접 값 사용 -->
+
+**Applies To**: Worker (implementation), Manager (review for state timing issues)
+<!-- 적용 대상: Worker(구현), Manager(상태 타이밍 이슈 검토) -->
+
+---
+
+### Testing Pattern: Test Helper Centralization (2025-10-29)
+<!-- 테스트 패턴: 테스트 헬퍼 중앙화 (2025-10-29) -->
+
+**Source**: From successful implementation
+
+**Problem**: Integration tests have duplicated setup code and are fragile
+<!-- 문제: 통합 테스트에 중복된 설정 코드가 있고 취약함 -->
+
+**Root Cause**: Inline test setup repeated across multiple tests
+<!-- 근본 원인: 여러 테스트에서 인라인 테스트 설정 반복 -->
+
+**Solution - 4-File Helper Pattern**:
+<!-- 해결책 - 4파일 헬퍼 패턴: -->
+```
+__tests__/
+├── fixtures/
+│   └── eventFixtures.ts      → createRecurringEvent(), getCurrentTestDate()
+├── helpers/
+│   ├── mockHelpers.ts         → setupRecurringEventMocks()
+│   ├── asyncHelpers.ts        → saveEventWithDialogHandling()
+│   └── domHelpers.ts          → hasRepeatIcon()
+```
+
+**Benefits**:
+<!-- 이점: -->
+- ✅ 50% reduction in test writing time
+- ✅ Centralized mock data management
+- ✅ Reusable async patterns
+- ✅ Consistent DOM queries
+
+**Anti-Pattern**: Copy-pasting setup code in every test
+<!-- 안티패턴: 모든 테스트에서 설정 코드 복사-붙여넣기 -->
+
+**Lesson**: Extract common test patterns into helpers early
+<!-- 교훈: 일반적인 테스트 패턴을 초기에 헬퍼로 추출 -->
+
+**Applies To**: Worker (create helpers), Planner (plan helper structure)
+<!-- 적용 대상: Worker(헬퍼 생성), Planner(헬퍼 구조 계획) -->
+
+---
+
+### PRD Pattern: Section 8 - Known Issues & Solutions (2025-10-29)
+<!-- PRD 패턴: 섹션 8 - 알려진 이슈 & 해결책 (2025-10-29) -->
+
+**Source**: `request/prd.md` v4.0
+
+**Problem**: New implementations repeat past mistakes
+<!-- 문제: 새로운 구현이 과거 실수를 반복 -->
+
+**Root Cause**: Past failures not documented in PRD
+<!-- 근본 원인: 과거 실패가 PRD에 문서화되지 않음 -->
+
+**Solution - PRD Template v4.0**:
+<!-- 해결책 - PRD 템플릿 v4.0: -->
+```markdown
+## 8. Known Issues & Solutions ⚠️
+
+### Issue 1: [Problem Name]
+**What Went Wrong**: [Description]
+**Why It Failed**: [Root cause]
+**Correct Approach**: [Solution]
+**Verification**: [How to verify fix]
+
+### Issue 2: ...
+```
+
+**Key Sections Added**:
+<!-- 추가된 핵심 섹션: -->
+- Section 3: Prerequisites (what to prepare first)
+- Section 4: Error Prevention (past mistakes to avoid)
+- Section 7: Error Recovery Process (protocol)
+- Section 8: Known Issues & Solutions (failure history)
+
+**Anti-Pattern**: Starting fresh PRD without past learnings
+<!-- 안티패턴: 과거 학습 없이 새로운 PRD 시작 -->
+
+**Lesson**: PRD should be living document that accumulates knowledge
+<!-- 교훈: PRD는 지식을 축적하는 살아있는 문서여야 함 -->
+
+**Applies To**: Planner (PRD creation), All agents (must read Section 8 before work)
+<!-- 적용 대상: Planner(PRD 생성), 모든 에이전트(작업 전 섹션 8 필수 읽기) -->
+
+---
+
+**Memory Version**: 3.0 (Error Recovery & Data Model Patterns Added 2025-10-29)
+<!-- 메모리 버전: 3.0 (오류 복구 & 데이터 모델 패턴 추가 2025-10-29) -->

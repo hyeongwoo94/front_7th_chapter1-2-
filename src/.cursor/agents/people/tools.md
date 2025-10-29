@@ -241,6 +241,100 @@ Worker coordinates the implementation of recurring events:
 - **Memory**: Check `memoryHome.md` for past recurring event patterns and solutions
 <!-- Memory: 과거 반복 일정 패턴과 솔루션은 memoryHome.md 확인 -->
 
+## Error Recovery Protocol
+<!-- 오류 복구 프로토콜 -->
+
+Worker MUST follow Error Recovery Process when same error occurs twice:
+<!-- 노동자는 같은 오류가 2번 발생하면 오류 복구 프로세스를 따라야 합니다: -->
+
+### Trigger: Same Error Occurs 2 Times
+<!-- 트리거: 같은 오류 2번 발생 -->
+
+**Recognition**:
+<!-- 인식: -->
+- Same error message appears twice
+<!-- 같은 오류 메시지 2번 나타남 -->
+- Same test fails twice after different fixes
+<!-- 다른 수정 후 같은 테스트가 2번 실패 -->
+- Same symptom occurs twice in different files
+<!-- 다른 파일에서 같은 증상 2번 발생 -->
+
+### Step 1: ⏸️ STOP Work Immediately
+<!-- 1단계: 즉시 작업 중단 -->
+
+**Actions**:
+<!-- 작업: -->
+1. Stop implementation
+<!-- 구현 중단 -->
+2. Report to King: "Same error occurred twice. Initiating Error Recovery Process."
+<!-- King에게 보고: "같은 오류 2번 발생. 오류 복구 프로세스 시작." -->
+3. Document current state
+<!-- 현재 상태 문서화 -->
+
+### Step 2: 📝 Create Review Document
+<!-- 2단계: 리뷰 문서 생성 -->
+
+**Delegate to Manager** for comprehensive review:
+<!-- 포괄적 리뷰를 위해 관리자에게 위임: -->
+- Error pattern analysis
+<!-- 오류 패턴 분석 -->
+- Root cause investigation
+<!-- 근본 원인 조사 -->
+- Solution proposal
+<!-- 해결책 제안 -->
+- Save to `review/YYYY-MM-DD_[description].md`
+<!-- `review/YYYY-MM-DD_[설명].md`에 저장 -->
+
+### Step 3: 📄 Wait for PRD Update
+<!-- 3단계: PRD 업데이트 대기 -->
+
+**Planner updates PRD** with:
+<!-- 계획자가 PRD 업데이트: -->
+- Section 3: Prerequisites (new requirements)
+<!-- 섹션 3: 전제조건 (새 요구사항) -->
+- Section 4: Error Prevention (checklist)
+<!-- 섹션 4: 오류 방지 (체크리스트) -->
+- Section 8: Known Issues & Solutions
+<!-- 섹션 8: 알려진 이슈 & 해결책 -->
+
+### Step 4: ▶️ RESTART Implementation
+<!-- 4단계: 구현 재시작 -->
+
+**Before restart checklist**:
+<!-- 재시작 전 체크리스트: -->
+- [ ] Review document created
+- [ ] PRD updated with new sections
+- [ ] All prerequisites understood
+- [ ] Root cause clear
+- [ ] Solution approach confirmed
+
+**After restart**:
+<!-- 재시작 후: -->
+1. Re-read updated PRD completely
+<!-- 업데이트된 PRD 완전히 재읽기 -->
+2. Complete new prerequisites
+<!-- 새 전제조건 완료 -->
+3. Follow new error prevention checklist
+<!-- 새 오류 방지 체크리스트 따르기 -->
+4. Implement with reviewed solutions
+<!-- 검토된 솔루션으로 구현 -->
+
+### Anti-Pattern to Avoid
+<!-- 피해야 할 안티패턴 -->
+- ❌ Keep trying different solutions without analysis
+<!-- 분석 없이 계속 다른 솔루션 시도 -->
+- ❌ Assume "next try will work"
+<!-- "다음 시도는 성공할 것" 가정 -->
+- ❌ Skip documentation of failures
+<!-- 실패 문서화 생략 -->
+- ❌ Continue without understanding root cause
+<!-- 근본 원인 이해 없이 계속 -->
+
+**Result**: First-try success rate after Error Recovery Process: 90%+
+<!-- 결과: 오류 복구 프로세스 후 첫 시도 성공률: 90%+ -->
+
+---
+
 ## Success Metrics
 <!-- 성공 지표 -->
 Worker's orchestration success is measured by:
@@ -257,3 +351,5 @@ Worker's orchestration success is measured by:
 <!-- 적시 전달: 일정에 맞춘 완전한 산출물 -->
 - **Standards Compliance**: Test Team and Feature Team follow all project standards
 <!-- 표준 준수: 테스트 팀과 기능 팀이 모든 프로젝트 표준을 따름 -->
+- **Error Recovery Adherence**: Follows Error Recovery Protocol when same error occurs twice
+<!-- 오류 복구 준수: 같은 오류 2번 발생 시 오류 복구 프로토콜 준수 -->

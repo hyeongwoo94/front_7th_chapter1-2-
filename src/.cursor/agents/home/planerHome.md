@@ -58,6 +58,103 @@
 
 ---
 
+#### Learning: Error Recovery Process Integration (2025-10-29)
+<!-- 학습: 오류 복구 프로세스 통합 (2025-10-29) -->
+
+**Pattern**: When creating PRD, MUST include Error Recovery sections
+<!-- 패턴: PRD 생성 시 오류 복구 섹션 필수 포함 -->
+
+**PRD Template v4.0 Structure**:
+<!-- PRD 템플릿 v4.0 구조: -->
+1. **Section 3: Prerequisites** - What to prepare before implementation
+   <!-- 섹션 3: 전제조건 - 구현 전 준비 사항 -->
+2. **Section 4: Error Prevention** - Common pitfalls to avoid
+   <!-- 섹션 4: 오류 방지 - 피해야 할 일반적인 함정 -->
+3. **Section 7: Error Recovery Process** - Protocol when same error occurs twice
+   <!-- 섹션 7: 오류 복구 프로세스 - 같은 오류 2번 발생 시 프로토콜 -->
+4. **Section 8: Known Issues & Solutions** - Past failures and how to avoid
+   <!-- 섹션 8: 알려진 이슈 & 해결책 - 과거 실패 및 회피 방법 -->
+
+**When to Use**:
+<!-- 사용 시기: -->
+- Creating new feature PRDs
+  <!-- 새 기능 PRD 생성 시 -->
+- Updating PRD after review
+  <!-- 리뷰 후 PRD 업데이트 시 -->
+- Documenting failed implementation attempts
+  <!-- 실패한 구현 시도 문서화 시 -->
+
+**Key Benefit**: 90%+ first-try success after PRD update
+<!-- 핵심 이점: PRD 업데이트 후 첫 시도 성공률 90%+ -->
+
+---
+
+#### Learning: Data Model Documentation (2025-10-29)
+<!-- 학습: 데이터 모델 문서화 (2025-10-29) -->
+
+**Pattern**: Always document data model choice explicitly in PRD
+<!-- 패턴: PRD에서 데이터 모델 선택을 항상 명시적으로 문서화 -->
+
+**Two Common Models**:
+<!-- 두 가지 일반적인 모델: -->
+```
+Template Model:
+- DB: 1 template event (repeat metadata)
+- Frontend: Generate instances for display
+- Operations: Use originalEventId
+
+Instance Model:
+- DB: Multiple events with same repeat.id
+- Frontend: Use events as-is
+- Operations: Use event.id (single) or repeat.id (all)
+```
+
+**Why Document**:
+<!-- 문서화 이유: -->
+- Prevents frontend/backend mismatch
+  <!-- 프론트엔드/백엔드 불일치 방지 -->
+- Clarifies ID usage (fake ID vs real DB ID)
+  <!-- ID 사용 명확화 (가짜 ID vs 실제 DB ID) -->
+- Guides implementation decisions
+  <!-- 구현 결정 가이드 -->
+
+**Where to Document**: Section 3 (Technical Requirements) of PRD
+<!-- 문서화 위치: PRD의 섹션 3 (기술 요구사항) -->
+
+---
+
+#### Learning: Test Helper Structure Planning (2025-10-29)
+<!-- 학습: 테스트 헬퍼 구조 계획 (2025-10-29) -->
+
+**Pattern**: Plan test helpers BEFORE writing integration tests
+<!-- 패턴: 통합 테스트 작성 전에 테스트 헬퍼 계획 -->
+
+**4-File Helper Pattern**:
+<!-- 4파일 헬퍼 패턴: -->
+```
+__tests__/
+├── fixtures/
+│   └── eventFixtures.ts      → Test data factory functions
+├── helpers/
+│   ├── mockHelpers.ts         → MSW setup
+│   ├── asyncHelpers.ts        → Async UI interaction patterns
+│   └── domHelpers.ts          → DOM query utilities
+```
+
+**Benefits**:
+<!-- 이점: -->
+- 50% reduction in test writing time
+  <!-- 테스트 작성 시간 50% 감소 -->
+- Reusable patterns across tests
+  <!-- 테스트 간 재사용 가능한 패턴 -->
+- Centralized mock management
+  <!-- 중앙화된 모의 관리 -->
+
+**When to Plan**: Section 0 (Prerequisites) in implementation plan
+<!-- 계획 시기: 구현 계획의 섹션 0 (전제조건) -->
+
+---
+
 ## Project-Specific Analysis
 <!-- 프로젝트별 분석 -->
 

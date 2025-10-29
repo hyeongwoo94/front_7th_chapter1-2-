@@ -604,6 +604,161 @@ Phase 3: Future Expansion (Potential)
 
 ---
 
+# Learned Implementation Patterns
+<!-- 학습된 구현 패턴 -->
+
+## Pattern 1: State Update Timing (2025-10-29)
+<!-- 패턴 1: 상태 업데이트 타이밍 (2025-10-29) -->
+
+**Problem**: React state doesn't update immediately
+<!-- 문제: React 상태가 즉시 업데이트되지 않음 -->
+
+**Anti-Pattern**:
+```typescript
+// ❌ BAD: Expects state to update immediately
+setEditingEvent(null);
+await saveEvent(eventData);  // Still uses old editingEvent
+```
+
+**Correct Pattern**:
+```typescript
+// ✅ GOOD: Direct API call, bypass state-dependent hook
+const response = await fetch('/api/events', {
+  method: 'POST',
+  body: JSON.stringify(eventData)
+});
+setEditingEvent(null);  // Update after
+```
+
+**Lesson**: For critical logic, don't rely on state updates within same function
+<!-- 교훈: 중요한 로직의 경우 같은 함수 내에서 상태 업데이트에 의존하지 말 것 -->
+
+---
+
+## Pattern 2: Instance vs Template Data Model (2025-10-29)
+<!-- 패턴 2: 인스턴스 vs 템플릿 데이터 모델 (2025-10-29) -->
+
+**Problem**: Using fake IDs for display but backend expects real DB IDs
+<!-- 문제: 디스플레이용 가짜 ID 사용하지만 백엔드는 실제 DB ID 예상 -->
+
+**Solution**: Understand which model is in use
+<!-- 해결책: 어느 모델이 사용 중인지 이해 -->
+
+**Template Model**:
+```typescript
+// DB: 1 original event
+// Frontend: Generate multiple instances with fake IDs
+// Operations: Use repeat.originalEventId
+const idToDelete = event.repeat?.originalEventId || event.id;
+await deleteEvent(idToDelete);
+```
+
+**Instance Model** (Current system):
+```typescript
+// DB: Multiple events with same repeat.id
+// Frontend: Use events as-is
+// Single delete: Use event.id
+await deleteEvent(event.id);
+
+// All delete: Use repeat.id
+await fetch(`/api/recurring-events/${event.repeat.id}`, { method: 'DELETE' });
+```
+
+**Lesson**: Check `server.js` and `realEvents.json` to confirm data model first
+<!-- 교훈: 먼저 server.js와 realEvents.json을 확인하여 데이터 모델 확인 -->
+
+---
+
+## Pattern 3: Dialog Sequencing (2025-10-29)
+<!-- 패턴 3: 다이얼로그 순서 (2025-10-29) -->
+
+**Problem**: Multiple dialogs appearing in sequence (edit options → overlap warning)
+<!-- 문제: 여러 다이얼로그가 순서대로 나타남 (수정 옵션 → 오버랩 경고) -->
+
+**Pattern**: Store pending data, close first dialog, then process
+<!-- 패턴: 대기 중인 데이터 저장, 첫 번째 다이얼로그 닫기, 그런 다음 처리 -->
+
+```typescript
+// Step 1: User clicks "Yes" on EditOptionsDialog
+const handleEditSingle = async () => {
+  setIsEditOptionsDialogOpen(false);  // Close first
+  setPendingEventData(eventData);      // Store data
+  
+  // Step 2: Check for overlaps
+  const overlapping = findOverlappingEvents(...);
+  if (overlapping.length > 0) {
+    setIsOverlapDialogOpen(true);      // Show second dialog
+    return;
+  }
+  
+  // Step 3: Process if no overlaps
+  await processEvent();
+};
+```
+
+**Lesson**: One dialog at a time, use state to pass data between dialogs
+<!-- 교훈: 한 번에 하나의 다이얼로그, 다이얼로그 간 데이터 전달에 상태 사용 -->
+
+---
+
+## Pattern 4: Test Helper Organization (2025-10-29)
+<!-- 패턴 4: 테스트 헬퍼 조직 (2025-10-29) -->
+
+**Problem**: Duplicated test setup code across integration tests
+<!-- 문제: 통합 테스트에서 중복된 테스트 설정 코드 -->
+
+**Solution**: 4-File Helper Structure
+<!-- 해결책: 4파일 헬퍼 구조 -->
+
+```
+__tests__/
+├── fixtures/
+│   └── eventFixtures.ts      → createRecurringEvent(), getCurrentTestDate()
+├── helpers/
+│   ├── mockHelpers.ts         → setupRecurringEventMocks()
+│   ├── asyncHelpers.ts        → saveEventWithDialogHandling()
+│   └── domHelpers.ts          → hasRepeatIcon()
+```
+
+**Benefits**:
+<!-- 이점: -->
+- Single source of truth for test data
+  <!-- 테스트 데이터의 단일 소스 -->
+- Reusable async patterns
+  <!-- 재사용 가능한 비동기 패턴 -->
+- Consistent DOM queries
+  <!-- 일관된 DOM 쿼리 -->
+- 50% faster test writing
+  <!-- 테스트 작성 50% 빠름 -->
+
+---
+
+## Pattern 5: API Endpoint Alignment (2025-10-29)
+<!-- 패턴 5: API 엔드포인트 정렬 (2025-10-29) -->
+
+**Problem**: Frontend and backend API usage mismatch
+<!-- 문제: 프론트엔드와 백엔드 API 사용 불일치 -->
+
+**Solution**: Map operations to correct endpoints
+<!-- 해결책: 작업을 올바른 엔드포인트에 매핑 -->
+
+```typescript
+// Single event operations
+POST /api/events              → Create single event
+PUT /api/events/:id           → Update single event
+DELETE /api/events/:id        → Delete single event
+
+// Recurring event operations (Instance Model)
+POST /api/events-list         → Create all instances at once
+PUT /api/recurring-events/:repeatId    → Update all instances
+DELETE /api/recurring-events/:repeatId → Delete all instances
+```
+
+**Lesson**: Always check `server.js` for available endpoints before implementation
+<!-- 교훈: 구현 전 항상 server.js에서 사용 가능한 엔드포인트 확인 -->
+
+---
+
 # Quick Reference
 <!-- 빠른 참조 -->
 

@@ -41,8 +41,8 @@ Automatically execute the following rules for each conversation:
    
    **A. Review Request** (when user says "리뷰해"):
    <!-- 리뷰 요청 (사용자가 "리뷰해"라고 말할 때): -->
-   - Save to `src/.cursor/agents/review/` folder ONLY (DO NOT save to histroy folder)
-   <!-- `src/.cursor/agents/review/` 폴더에만 저장 (histroy 폴더에 저장하지 않음) -->
+   - Save to `src/.cursor/agents/review/` folder ONLY (DO NOT save to history folder)
+   <!-- `src/.cursor/agents/review/` 폴더에만 저장 (history 폴더에 저장하지 않음) -->
    - File naming: `YYYY-MM-DD_task-description.md`
    <!-- 파일명: `YYYY-MM-DD_작업설명.md` -->
    - Example: `2025-10-29_overlap-dialog-bug-fix.md`
@@ -52,8 +52,8 @@ Automatically execute the following rules for each conversation:
    
    **B. Request Document Creation** (when user says "작성해" and Planner creates PRD):
    <!-- 요청 문서 작성 (사용자가 "작성해"라고 말하고 Planner가 PRD를 만들 때): -->
-   - Save to `src/.cursor/agents/request/` folder ONLY (DO NOT save to histroy folder)
-   <!-- `src/.cursor/agents/request/` 폴더에만 저장 (histroy 폴더에 저장하지 않음) -->
+   - Save to `src/.cursor/agents/request/` folder ONLY (DO NOT save to history folder)
+   <!-- `src/.cursor/agents/request/` 폴더에만 저장 (history 폴더에 저장하지 않음) -->
    - File naming: `feature-name.md` (descriptive, kebab-case)
    <!-- 파일명: `기능명.md` (설명적, kebab-case) -->
    - Example: `recurring-event-delete-single-or-all.md`
@@ -65,8 +65,8 @@ Automatically execute the following rules for each conversation:
    
    **C. Regular Conversation** (all other cases):
    <!-- 일반 대화 (다른 모든 경우): -->
-   - Save to `src/.cursor/agents/histroy/` folder with date-based folder structure
-   <!-- 날짜별 폴더 구조로 `src/.cursor/agents/histroy/` 폴더에 저장 -->
+   - Save to `src/.cursor/agents/history/` folder with date-based folder structure
+   <!-- 날짜별 폴더 구조로 `src/.cursor/agents/history/` 폴더에 저장 -->
    - **Folder and file naming rule**: `MMDD/MMDD_i.md` (date-folder/month-day_sequence)
    <!-- 폴더 및 파일명 규칙: `MMDD/MMDD_i.md` (날짜폴더/월일_순번) -->
    - Example: October 27th first file → `1027/1027_1.md`
@@ -78,8 +78,8 @@ Automatically execute the following rules for each conversation:
    - **New date**: Automatically create new MMDD folder
    <!-- 새 날짜: 자동으로 새 MMDD 폴더 생성 -->
 
-   **Auto-renumbering rule** (histroy folder only): When a history file is deleted, automatically renumber remaining files in that date folder
-   <!-- 자동 순번 재정렬 규칙 (histroy 폴더만): 히스토리 파일이 삭제되면 해당 날짜 폴더 내의 남은 파일들의 순번을 자동으로 재정렬 -->
+   **Auto-renumbering rule** (history folder only): When a history file is deleted, automatically renumber remaining files in that date folder
+   <!-- 자동 순번 재정렬 규칙 (history 폴더만): 히스토리 파일이 삭제되면 해당 날짜 폴더 내의 남은 파일들의 순번을 자동으로 재정렬 -->
    - If `1028/1028_3.md` is deleted, renumber: `1028/1028_4.md` → `1028/1028_3.md`, `1028/1028_5.md` → `1028/1028_4.md`
    <!-- `1028/1028_3.md`가 삭제되면: `1028/1028_4.md` → `1028/1028_3.md`, `1028/1028_5.md` → `1028/1028_4.md`로 재정렬 -->
    - **Purpose**: Maintain sequential numbering without gaps for better readability within each date folder
@@ -96,8 +96,8 @@ Automatically execute the following rules for each conversation:
 3. **File content format**:
    <!-- 파일 내용 형식: -->
    
-   **For histroy (regular conversation)**:
-   <!-- histroy용 (일반 대화): -->
+   **For history (regular conversation)**:
+   <!-- history용 (일반 대화): -->
    ```markdown
    질문 (원본):
    YYYY-MM-DD
@@ -614,8 +614,8 @@ import { Button } from '@mui/material';  // Wrong order
 
 6. **✅ Documentation check**
    <!-- 문서화 확인 -->
-   - History file saved (`histroy/MMDD_i.md`)
-   <!-- 히스토리 파일 저장 완료 (`histroy/MMDD_i.md`) -->
+   - History file saved (`history/MMDD_i.md`)
+   <!-- 히스토리 파일 저장 완료 (`history/MMDD_i.md`) -->
    - Add comments to complex logic
    <!-- 복잡한 로직에 주석 추가 -->
    - Add English comments + Korean translation comments
@@ -709,8 +709,8 @@ import { Button } from '@mui/material';  // Wrong order
   <!-- 가이드: `src/.cursor/agents/doc/` -->
   - Role definitions: `src/.cursor/agents/people/`
   <!-- 역할 정의: `src/.cursor/agents/people/` -->
-  - History: `src/.cursor/agents/histroy/`
-  <!-- 히스토리: `src/.cursor/agents/histroy/` -->
+  - History: `src/.cursor/agents/history/`
+  <!-- 히스토리: `src/.cursor/agents/history/` -->
 
 # ========================================
 # QUICK REFERENCE

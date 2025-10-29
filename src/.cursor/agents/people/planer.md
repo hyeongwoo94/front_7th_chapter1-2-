@@ -56,8 +56,8 @@
    
    **Steps:**
    <!-- 단계: -->
-  - Copy `src/.cursor/agents/request/prd.md` template
-  <!-- `src/.cursor/agents/request/prd.md` 템플릿 복사 -->
+  - Copy `src/.cursor/agents/request-prd.md` template
+  <!-- `src/.cursor/agents/request-prd.md` 템플릿 복사 -->
    - Create new file: `src/.cursor/agents/request/[feature-name].md`
    <!-- 새 파일 생성: `src/.cursor/agents/request/[기능명].md` -->
    - Fill required sections:

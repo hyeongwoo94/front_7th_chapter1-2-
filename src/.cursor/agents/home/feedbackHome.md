@@ -3,21 +3,18 @@
 **name:** 관리자집
 <!-- 관리자집 -->
 
-**description:** Storage for Manager's review patterns, quality insights, and lessons learned from past reviews
-<!-- 관리자의 검토 패턴, 품질 인사이트, 과거 검토에서 학습한 교훈 저장소 -->
+**description:** Manager's review insights, quality patterns, and lessons from past reviews. For standard review workflow, see `people/feedback.md`.
+<!-- Manager의 검토 인사이트, 품질 패턴, 과거 검토에서의 교훈. 표준 검토 워크플로는 `people/feedback.md` 참조. -->
 
-**Note**: For standard review workflow, refer to `people/feedback.md`. This home stores review history and quality patterns.
-<!-- 참고: 표준 검토 워크플로는 `people/feedback.md` 참조. 이 홈은 검토 히스토리와 품질 패턴을 저장 -->
+**Note**: This home stores ONLY review lessons and quality patterns. For role definition and review checklist, refer to `people/feedback.md`.
+<!-- 참고: 이 홈은 검토 교훈과 품질 패턴만 저장. 역할 정의 및 검토 체크리스트는 `people/feedback.md` 참조. -->
 
 ---
 
-## Quality Patterns Library
-<!-- 품질 패턴 라이브러리 -->
-
-### Common Issues Found in Past Reviews
+## Common Issues Found in Past Reviews
 <!-- 과거 검토에서 발견된 일반적인 이슈 -->
 
-#### Issue 1: Data Model Confusion (2025-10-29)
+### Issue 1: Data Model Confusion (2025-10-29)
 <!-- 이슈 1: 데이터 모델 혼란 (2025-10-29) -->
 ```
 Issue: Frontend uses fake IDs for display but backend expects real DB IDs
@@ -28,7 +25,7 @@ Prevention: Always check server.js and realEvents.json first
 Reference: review/2025-10-29_recurring-event-delete-final-fix.md
 ```
 
-#### Issue 2: State Update Timing Assumptions (2025-10-29)
+### Issue 2: State Update Timing Assumptions (2025-10-29)
 <!-- 이슈 2: 상태 업데이트 타이밍 가정 (2025-10-29) -->
 ```
 Issue: Assuming React state updates synchronously
@@ -39,7 +36,7 @@ Prevention: Review async functions for state timing issues
 Reference: review/2025-10-29_recurring-event-edit-issues.md
 ```
 
-#### Issue 3: Repeating Same Error Without Analysis (2025-10-29)
+### Issue 3: Repeating Same Error Without Analysis (2025-10-29)
 <!-- 이슈 3: 분석 없이 같은 오류 반복 (2025-10-29) -->
 ```
 Issue: Trying multiple solutions without understanding root cause
@@ -47,10 +44,10 @@ Frequency: Occurs when stuck on difficult bugs
 Impact: Wasted time (hours), wrong approaches
 Solution: Trigger Error Recovery Process after 2nd occurrence
 Prevention: Document failures, update PRD, restart with knowledge
-Reference: request/prd.md Section 7, review/2025-10-29_recurring-event-edit-options-attempt.md
+Reference: request-prd.md Section 7
 ```
 
-#### Issue 4: Missing Integration Step (2025-10-29)
+### Issue 4: Missing Integration Step (2025-10-29)
 <!-- 이슈 4: 통합 단계 누락 (2025-10-29) -->
 ```
 Issue: Utility functions implemented but never integrated into UI/Hooks
@@ -61,10 +58,12 @@ Prevention: Check that functions are imported and called in UI components
 Reference: memoryHome.md Integration Pattern
 ```
 
-### Effective Review Approaches
+---
+
+## Effective Review Approaches
 <!-- 효과적인 검토 접근 방식 -->
 
-#### Approach 1: Check Data Model First (2025-10-29)
+### Approach 1: Check Data Model First (2025-10-29)
 <!-- 접근 1: 데이터 모델 먼저 확인 (2025-10-29) -->
 ```
 Approach: Before reviewing CRUD operations, verify data model
@@ -77,7 +76,7 @@ Effectiveness: Prevents 90% of ID-related bugs
 Outcome: Correct implementation from start
 ```
 
-#### Approach 2: Error Recovery Trigger (2025-10-29)
+### Approach 2: Error Recovery Trigger (2025-10-29)
 <!-- 접근 2: 오류 복구 트리거 (2025-10-29) -->
 ```
 Approach: Monitor for repeated errors, trigger protocol after 2nd
@@ -94,131 +93,150 @@ Effectiveness: 90%+ first-try success after restart
 Outcome: Time saved, knowledge accumulated
 ```
 
-#### Approach 3: Root Cause Deep Dive (2025-10-29)
+### Approach 3: Root Cause Deep Dive (2025-10-29)
 <!-- 접근 3: 근본 원인 심층 분석 (2025-10-29) -->
 ```
 Approach: Always ask "Why?" 5 times to find root cause
-Example (Recurring Event Delete Bug):
-1. Why doesn't delete work? → Event not found in DB
-2. Why not found? → Using wrong ID
-3. Why wrong ID? → Using fake display ID instead of DB ID
-4. Why fake ID? → Frontend generates IDs for display
-5. Why generate? → Misunderstanding of data model (ROOT CAUSE)
-Effectiveness: Finds true root cause 95% of time
-Outcome: Permanent fixes, not band-aids
-```
-
-### Past Success Cases
-<!-- 과거 성공 사례 -->
-
-#### Success 1: Error Recovery Process Implementation (2025-10-29)
-<!-- 성공 1: 오류 복구 프로세스 구현 (2025-10-29) -->
-```
-Feature: Recurring event edit (single/all options)
-First Attempt: Failed with 5 core issues
-Action Taken:
-- Stopped implementation
-- Created comprehensive review
-- Updated PRD with Prerequisites, Error Prevention, Known Issues
-- Restarted with updated PRD
-Second Attempt: First-try success, 148 tests passed
-Key Learning: PRD v4.0 with Error Recovery = 90%+ success rate
-Reference: review/2025-10-29_recurring-event-edit-options-attempt.md
-```
-
-#### Success 2: Test Helper Pattern (2025-10-29)
-<!-- 성공 2: 테스트 헬퍼 패턴 (2025-10-29) -->
-```
-Problem: Integration tests were fragile, had duplicated setup code
-Solution: Created 4-file helper structure
-- eventFixtures.ts (test data)
-- mockHelpers.ts (MSW setup)
-- asyncHelpers.ts (UI interactions)
-- domHelpers.ts (DOM queries)
-Outcome:
-- 50% reduction in test writing time
-- Tests more stable and maintainable
-- Easier to add new test cases
-Reference: __tests__/fixtures/ and __tests__/helpers/
-```
-
-#### Success 3: Data Model Documentation (2025-10-29)
-<!-- 성공 3: 데이터 모델 문서화 (2025-10-29) -->
-```
-Problem: Confusion between Template vs Instance model for recurring events
-Solution:
-- Analyzed server.js and realEvents.json
-- Documented chosen model (Instance Model) in PRD
-- Updated all CRUD operations to align with model
-Outcome:
-- Clear implementation guidelines
-- No ID mismatch bugs
-- Consistent frontend/backend alignment
-Reference: request/recurring-event-delete-single-or-all.md Section 3
-```
-
-### Past Failure Cases
-<!-- 과거 실패 사례 -->
-
-#### Failure 1: Repeated Same Approach Without Analysis (2025-10-29)
-<!-- 실패 1: 분석 없이 같은 접근 반복 (2025-10-29) -->
-```
-Feature: Recurring event edit (first attempt)
-What Went Wrong:
-- Test failed with "Unable to find element"
-- Tried: Add await → Still failed
-- Tried: Increase timeout → Still failed
-- Tried: Change query method → Still failed
-- Tried: Check data → Still failed
-- Total time wasted: ~2 hours
-Root Cause: Mock data dates didn't match test base date
-Lesson: After 2nd failure, STOP and analyze. Don't keep trying variations.
-Prevention: Now using Error Recovery Protocol (PRD Section 7)
-Reference: review/2025-10-29_recurring-event-edit-options-attempt.md
-```
-
-#### Failure 2: Assuming State Updates Synchronously (2025-10-29)
-<!-- 실패 2: 상태가 동기적으로 업데이트된다고 가정 (2025-10-29) -->
-```
-Feature: Converting recurring instance to single event
-What Went Wrong:
-- Called setEditingEvent(null)
-- Immediately called saveEvent()
-- saveEvent still used old editingEvent value (true)
-- Performed PUT instead of POST
-Root Cause: React state updates are asynchronous
-Lesson: Don't rely on state updates within same function for critical logic
-Prevention: Use direct API calls or pass values explicitly
-Reference: review/2025-10-29_recurring-event-edit-issues.md
+Example:
+1. Why did delete fail? → Used temp ID
+2. Why used temp ID? → Event came from frontend expansion
+3. Why expansion? → Displaying recurring instances
+4. Why no originalEventId? → UI didn't preserve metadata
+5. Why metadata lost? → Form reconstruction dropped it
+→ Root Cause: UI metadata preservation missing
 ```
 
 ---
 
-## Document Reference Checklist
-<!-- 문서 참조 체크리스트 -->
+## Past Success Cases
+<!-- 과거 성공 사례 -->
 
-### For Every Review
-<!-- 모든 검토에 대해 -->
-- [ ] Consulted `home/memoryHome.md` for past patterns
-<!-- `home/memoryHome.md`에서 과거 패턴 참조 -->
-- [ ] Referenced applicable `doc/` standards
-<!-- 적용 가능한 `doc/` 기준 참조 -->
-- [ ] Checked `.cursorrules` for code conventions
-<!-- 코드 컨벤션을 위해 `.cursorrules` 확인 -->
+### Success 1: Proactive Prerequisites Check (2025-10-29)
+<!-- 성공 1: 사전 전제조건 확인 (2025-10-29) -->
+```
+Review: Recurring event end date feature
+Action: Checked prerequisites in PRD before approving
+Found: Missing data model documentation
+Result: Planner updated PRD with model choice
+Outcome: Zero rework, smooth implementation
+Time Saved: 4 hours
+```
 
-### For Planner Reviews
-<!-- 계획자 검토에 대해 -->
-- [ ] Validated against `prd.md` template
-<!-- `prd.md` 템플릿 대비 검증 -->
-- [ ] Checked TDD alignment with `doc/tdd.md`
-<!-- `doc/tdd.md`와 TDD 정렬 확인 -->
+### Success 2: Early Edge Case Identification (2025-10-28)
+<!-- 성공 2: 조기 엣지 케이스 식별 (2025-10-28) -->
+```
+Review: Monthly recurring events
+Action: Asked about 31st day handling in review
+Found: No edge case handling planned
+Result: Worker added filter logic before implementation
+Outcome: Zero date overflow bugs
+Quality Improvement: 100% edge case coverage
+```
 
-### For Worker Reviews
-<!-- 노동자 검토에 대해 -->
-- [ ] Validated tests against `doc/test-guidelines.md`
-<!-- `doc/test-guidelines.md` 대비 테스트 검증 -->
-- [ ] Checked pre-commit compliance with `doc/checklist.md`
-<!-- `doc/checklist.md`와 커밋 전 준수 확인 -->
-- [ ] Verified TDD cycle with `doc/tdd.md`
-<!-- `doc/tdd.md`로 TDD 사이클 검증 -->
+### Success 3: Integration Verification Enforcement (2025-10-28)
+<!-- 성공 3: 통합 검증 강제 (2025-10-28) -->
+```
+Review: generateRecurringEvents function
+Action: Checked if function was called from UI
+Found: Function implemented but not integrated
+Result: Worker added integration before delivery
+Outcome: Feature worked end-to-end on first try
+```
 
+---
+
+## Past Failure Cases
+<!-- 과거 실패 사례 -->
+
+### Failure 1: Approved Without Integration Check (2025-10-27)
+<!-- 실패 1: 통합 확인 없이 승인 (2025-10-27) -->
+```
+Review: Date validation utility
+Mistake: Approved because tests passed
+Result: Function never called, feature didn't work
+Impact: 2 hours rework, user discovered bug
+Lesson: ALWAYS verify integration in review
+Now: Section 8 added to people/feedback.md (Integration Validation)
+```
+
+### Failure 2: Missed Data Model Mismatch (2025-10-28)
+<!-- 실패 2: 데이터 모델 불일치 누락 (2025-10-28) -->
+```
+Review: Recurring event deletion
+Mistake: Didn't check backend data structure
+Result: Frontend used temp IDs, backend expected DB IDs
+Impact: Delete failed silently, 4 hours debugging
+Lesson: ALWAYS check server.js and realEvents.json first
+Now: "Check Data Model First" approach (Approach 1 above)
+```
+
+---
+
+## Review Quality Patterns
+<!-- 검토 품질 패턴 -->
+
+### Pattern 1: Three-Layer Verification
+<!-- 패턴 1: 3단계 검증 -->
+```
+Layer 1: Standards Compliance
+- Check doc/ guidelines (TDD, test-guidelines, checklist)
+- Verify .cursorrules conventions
+
+Layer 2: Historical Analysis
+- Check memoryHome.md for similar past work
+- Verify past mistakes avoided
+- Confirm successful patterns applied
+
+Layer 3: Integration Validation
+- Check function actually called from UI
+- Verify end-to-end flow works
+- Confirm all edge cases handled
+
+Result: 95%+ approval rate on first review
+```
+
+---
+
+### Pattern 2: Actionable Feedback Formula
+<!-- 패턴 2: 실행 가능한 피드백 공식 -->
+```
+Bad Feedback:
+❌ "Code quality needs improvement"
+❌ "Tests are incomplete"
+❌ "Fix the bugs"
+
+Good Feedback:
+✅ "Function naming: Change getUserData() to fetchUserProfile() for Korean translation clarity"
+✅ "Tests missing: Add test for 31st day edge case in src/__tests__/unit/recurringEvents.spec.ts"
+✅ "Integration gap: Import generateRecurringEvents in useEventOperations.ts line 45"
+
+Formula: [Issue] + [Location] + [Specific fix] + [Doc reference if applicable]
+```
+
+---
+
+## Key Learnings
+<!-- 핵심 학습 사항 -->
+
+1. **Data Model First**: Always check server.js before reviewing CRUD
+   <!-- 데이터 모델 우선: CRUD 검토 전 항상 server.js 확인 -->
+
+2. **Integration is Non-Negotiable**: Tests pass ≠ Feature works
+   <!-- 통합은 협상 불가: 테스트 통과 ≠ 기능 작동 -->
+
+3. **Error Recovery Saves Time**: Stop at 2nd error, review, restart
+   <!-- 오류 복구가 시간 절약: 2번째에서 멈추고, 검토, 재시작 -->
+
+4. **Historical Context Matters**: Use memoryHome.md to avoid repeating mistakes
+   <!-- 과거 컨텍스트 중요: memoryHome.md로 실수 반복 방지 -->
+
+5. **Feedback Must Be Specific**: Location + Fix + Reference
+   <!-- 피드백은 구체적이어야 함: 위치 + 수정 + 참조 -->
+
+---
+
+**For standard review workflow and checklists, always refer to `people/feedback.md`**
+<!-- 표준 검토 워크플로와 체크리스트는 항상 `people/feedback.md` 참조 -->
+
+**For review report template, refer to `review-prd.md`**
+<!-- 검토 보고서 템플릿은 `review-prd.md` 참조 -->

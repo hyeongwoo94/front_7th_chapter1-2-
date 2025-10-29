@@ -44,7 +44,7 @@
 
 ### Guidelines Referenced
 - `src/.cursor/agents/doc/checklist.md` - Pre-commit checklist (CRLF issues)
-- `src/.cursor/agents/review/prd.md` - Review PRD template
+- `src/.cursor/agents/review-prd.md` - Review PRD template
 
 ---
 

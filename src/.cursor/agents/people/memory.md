@@ -310,8 +310,149 @@ Action: Skip cleanup
 Next threshold: 3000 lines (increased)
 ```
 
-### Pattern 2: Concise History Documentation
-<!-- 패턴 2: 간결한 히스토리 문서화 -->
+### Pattern 2: Dynamic History Search (Incremental Range)
+<!-- 패턴 2: 동적 히스토리 검색 (점진적 범위) -->
+
+**Purpose**: Optimize token usage by searching recent history first, expanding only if needed
+<!-- 목적: 최근 히스토리를 먼저 검색하여 토큰 사용 최적화, 필요 시에만 확장 -->
+
+**Initial Search**: Last 30 days
+<!-- 초기 검색: 최근 30일 -->
+
+**Expansion Rule**: If pattern/error not found, automatically expand search range
+<!-- 확장 규칙: 패턴/에러를 찾지 못하면 자동으로 검색 범위 확장 -->
+
+**Search Sequence**:
+<!-- 검색 순서: -->
+```
+1st Search: Last 30 days
+   → Found? Return results ✅
+   → Not found? Continue to 2nd search
+
+2nd Search: Last 60 days (expand +30)
+   → Found? Return results ✅
+   → Not found? Continue to 3rd search
+
+3rd Search: Last 90 days (expand +30)
+   → Found? Return results ✅
+   → Not found? Continue to 4th search
+
+4th Search: Last 120 days (expand +30)
+   → Pattern continues...
+
+Nth Search: Last (30 * N) days
+   → Until found or no more history
+```
+
+**How to Determine "Found"**:
+<!-- "발견됨" 판단 기준: -->
+- Relevant pattern exists in searched files
+- Similar error/issue documented
+- Matching implementation approach found
+- Related code pattern available
+
+**How to Determine "Not Found"**:
+<!-- "발견 안 됨" 판단 기준: -->
+- No matching patterns in searched period
+- No similar issues documented
+- No relevant solutions found
+
+**Implementation**:
+<!-- 구현: -->
+```typescript
+function searchHistory(query: string): SearchResult {
+  let dayRange = 30;
+  const maxDays = 365;
+  
+  while (dayRange <= maxDays) {
+    const files = getHistoryFiles(dayRange);  // Get files from last N days
+    const results = searchInFiles(files, query);
+    
+    if (results.length > 0) {
+      // ✅ Found! Return results
+      return {
+        found: true,
+        results,
+        searchedDays: dayRange,
+        filesSearched: files.length
+      };
+    }
+    
+    // ❌ Not found, expand search
+    dayRange += 30;
+  }
+  
+  // Searched entire year, nothing found
+  return {
+    found: false,
+    searchedDays: 365,
+    filesSearched: totalFiles
+  };
+}
+```
+
+**Benefits**:
+<!-- 이점: -->
+- **Token Efficiency**: Average 70% token saving (search 30 days vs 365 days)
+  <!-- 토큰 효율성: 평균 70% 토큰 절약 (30일 검색 vs 365일 검색) -->
+- **Faster Results**: Recent patterns more relevant
+  <!-- 빠른 결과: 최근 패턴이 더 관련성 높음 -->
+- **Automatic Fallback**: Expands if needed, doesn't miss old patterns
+  <!-- 자동 폴백: 필요 시 확장, 오래된 패턴 놓치지 않음 -->
+
+**Example Usage**:
+<!-- 사용 예시: -->
+```
+Query: "How to handle recurring event deletion?"
+
+1st Search (30 days):
+- Files: history/1029/*.md, history/1028/*.md
+- Result: Found `1029_27.md` with deletion pattern
+- Token used: ~500
+→ ✅ Return immediately
+
+---
+
+Query: "How to implement leap year handling?"
+
+1st Search (30 days):
+- Files: history/1029/*.md, history/1028/*.md
+- Result: Not found
+
+2nd Search (60 days):
+- Files: history/1029/*.md, history/1028/*.md, history/1027/*.md
+- Result: Not found
+
+3rd Search (90 days):
+- Files: + history/0930/*.md
+- Result: Found `0930_15.md` with leap year pattern
+- Token used: ~1200
+→ ✅ Return with older result
+
+---
+
+Query: "How to implement blockchain?"
+
+1st-12th Search (365 days):
+- Result: Not found in entire history
+- Token used: ~3000
+→ ❌ Not found, use general knowledge
+```
+
+**Logging** (for monitoring):
+<!-- 로깅 (모니터링용): -->
+```
+Search completed:
+- Query: "recurring event deletion"
+- Found at: 30 days
+- Files searched: 25
+- Token saved: ~2500 (vs full year search)
+```
+
+---
+
+### Pattern 3: Concise History Documentation
+<!-- 패턴 3: 간결한 히스토리 문서화 -->
 
 **Rule**: History files should contain ONLY essential information, not full responses
 <!-- 규칙: 히스토리 파일은 전체 응답이 아닌 핵심 정보만 포함해야 함 -->

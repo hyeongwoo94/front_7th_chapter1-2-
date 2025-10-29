@@ -747,7 +747,7 @@ Total: ~20분
 <!-- 문서화 -->
 
 - [ ] Add implementation notes to this file (Section 13)
-- [ ] Create history file: `histroy/1029/1029_[n].md`
+- [ ] Create history file: `history/1029/1029_[n].md`
 - [ ] Update Memory if new patterns discovered
 
 ### Code Review Self-Check

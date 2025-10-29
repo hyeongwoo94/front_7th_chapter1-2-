@@ -1,169 +1,171 @@
-# King Home - 嫄대Ъ二쇱쭛 (Building Owner's Home)
+# King Home - 건물주집 (Building Owner's Home)
 
-**name:** 嫄대Ъ二쇱쭛
-<!-- 嫄대Ъ二쇱쭛 -->
+**name:** 건물주집
+<!-- 건물주집 -->
 
 **description:** Commands and workflow management center for the King agent.
-<!-- 嫄대Ъ二??먯씠?꾪듃??紐낅졊 諛??뚰겕?뚮줈 愿由??쇳꽣 -->
+<!-- 킹 에이전트의 명령 및 워크플로 관리 센터 -->
 
 ## Trigger Commands
-<!-- ?몃━嫄?紐낅졊 -->
+<!-- 트리거 명령 -->
 These keywords trigger specific workflows when issued by the user.
-<!-- ?대윭???ㅼ썙?쒕뒗 ?ъ슜?먭? 諛쒗뻾?????뱀젙 ?뚰겕?뚮줈瑜??몃━嫄고빀?덈떎. -->
+<!-- 이러한 키워드는 사용자가 발행할 때 특정 워크플로를 트리거합니다. -->
 
-### ?숈뒿??[topic]
-<!-- ?숈뒿??[topic] -->
-**Trigger:** "?숈뒿??[二쇱젣]"
-<!-- ?몃━嫄? "?숈뒿??[二쇱젣]" -->
+### 학습해 [topic]
+<!-- 학습해 [topic] -->
+**Trigger:** "학습해 [주제]"
+<!-- 트리거: "학습해 [주제]" -->
 **Workflow:**
 1. King receives learning command for specified topic
-<!-- 1. 嫄대Ъ二쇨? 吏?뺣맂 二쇱젣??????숈뒿 紐낅졊??諛쏆뒿?덈떎 -->
+<!-- 1. 건물주가 지정된 주제에 대한 학습 명령을 받습니다 -->
 2. King delegates to Planner: "Create learning workflow for [topic]"
-<!-- 2. 嫄대Ъ二쇨? 怨꾪쉷?먯뿉寃??꾩엫: "[二쇱젣]??????숈뒿 ?뚰겕?뚮줈 ?묒꽦" -->
+<!-- 2. 건물주가 계획자에게 위임: "[주제]에 대한 학습 워크플로 작성" -->
 3. Planner checks Memory for existing knowledge, creates plan, returns to King
-<!-- 3. 怨꾪쉷?먭? ?몄썡?댁뿉??湲곗〈 吏?앹쓣 ?뺤씤?섍퀬, 怨꾪쉷???묒꽦?섏뿬 嫄대Ъ二쇱뿉寃?諛섑솚 -->
+<!-- 3. 계획자가 세월이에게서 기존 지식을 확인하고, 계획을 작성하여 건물주에게 반환 -->
 4. King delegates to Worker: "Implement learning based on plan"
-<!-- 4. 嫄대Ъ二쇨? ?몃룞?먯뿉寃??꾩엫: "怨꾪쉷??湲곕컲?쇰줈 ?숈뒿 援ы쁽" -->
+<!-- 4. 건물주가 노동자에게 위임: "계획에 기반으로 학습 구현" -->
 5. Worker checks Memory for patterns, implements, returns to King
-<!-- 5. ?몃룞?먭? ?몄썡?댁뿉???⑦꽩???뺤씤?섍퀬, 援ы쁽?섏뿬 嫄대Ъ二쇱뿉寃?諛섑솚 -->
+<!-- 5. 노동자가 세월이에게서 패턴을 확인하고, 구현하여 건물주에게 반환 -->
 6. King delegates to Manager: "Review the implementation"
-<!-- 6. 嫄대Ъ二쇨? 愿由ъ옄?먭쾶 ?꾩엫: "援ы쁽 寃?? -->
+<!-- 6. 건물주가 관리자에게 위임: "구현 검토" -->
 7. Manager checks Memory for quality patterns, reviews, returns feedback
-<!-- 7. 愿由ъ옄媛 ?몄썡?댁뿉???덉쭏 ?⑦꽩???뺤씤?섍퀬, 寃?좏븯硫??쇰뱶諛?諛섑솚 -->
+<!-- 7. 관리자가 세월이에게서 품질 패턴을 확인하고, 검토하며 피드백 반환 -->
 8. King delegates to Memory: "Store [topic] learning: [result]"
-<!-- 8. 嫄대Ъ二쇨? ?몄썡?댁뿉寃??꾩엫: "[二쇱젣] ?숈뒿 ??? [寃곌낵]" -->
+<!-- 8. 건물주가 세월이에게 위임: "[주제] 학습 저장: [결과]" -->
 9. Memory stores successful patterns and failures for future reference
-<!-- 9. ?몄썡?닿? ?ν썑 李몄“瑜??꾪빐 ?깃났 ?⑦꽩怨??ㅽ뙣瑜????-->
+<!-- 9. 세월이가 이후 참조를 위해 성공 패턴과 실패를 저장 -->
 
 **Storage:** Each step stores in respective agent home files
-<!-- ??? 媛??④퀎媛 ?대떦 ?먯씠?꾪듃 ???뚯씪?????-->
+<!-- 저장: 각 단계가 해당 에이전트 홈 파일에 저장 -->
 
-### 援ы쁽??[feature]
-<!-- 援ы쁽??[feature] -->
-**Trigger:** "援ы쁽??[湲곕뒫]"
-<!-- ?몃━嫄? "援ы쁽??[湲곕뒫]" -->
+### 구현해 [feature]
+<!-- 구현해 [feature] -->
+**Trigger:** "구현해 [기능]"
+<!-- 트리거: "구현해 [기능]" -->
 **Workflow:** TDD-based implementation workflow for new features
-<!-- ?뚰겕?뚮줈: ??湲곕뒫???꾪븳 TDD 湲곕컲 援ы쁽 ?뚰겕?뚮줈 -->
-*(Similar structure to ?숈뒿?? but focused on implementation)*
-<!-- *(?숈뒿?댁? ?좎궗??援ъ“?댁?留?援ы쁽??珥덉젏)* -->
+<!-- 워크플로: 새 기능을 위한 TDD 기반 구현 워크플로 -->
+*(Similar structure to 학습해 but focused on implementation)*
+<!-- *(학습해와 유사한 구조이지만 구현에 초점)* -->
 
-### 由щ럭??[code/test]
-<!-- 由щ럭??[code/test] -->
-**Trigger:** "由щ럭??[肄붾뱶/?뚯뒪??"
-<!-- ?몃━嫄? "由щ럭??[肄붾뱶/?뚯뒪??" -->
+### 리뷰해 [code/test]
+<!-- 리뷰해 [code/test] -->
+**Trigger:** "리뷰해 [코드/테스트]"
+<!-- 트리거: "리뷰해 [코드/테스트]" -->
 **Workflow:** Code/test review and quality assurance
-<!-- ?뚰겕?뚮줈: 肄붾뱶/?뚯뒪??寃??諛??덉쭏 蹂댁쬆 -->
-*(Similar structure to ?숈뒿?? but focused on review)*
-<!-- *(?숈뒿?댁? ?좎궗??援ъ“?댁?留?寃?좎뿉 珥덉젏)* -->
+<!-- 워크플로: 코드/테스트 검토 및 품질 보증 -->
+*(Similar structure to 학습해 but focused on review)*
+<!-- *(학습해와 유사한 구조이지만 검토에 초점)* -->
 
-### ?쒖옉??[description]
-<!-- ?쒖옉??[description] -->
-**Trigger:** "?쒖옉??[?뚯뒪???붿뒪?щ┰??"
-<!-- ?몃━嫄? "?쒖옉??[?뚯뒪???붿뒪?щ┰??" -->
+### 작성해 [description]
+<!-- 작성해 [description] -->
+**Trigger:** "작성해 [테스트 디스크립션]"
+<!-- 트리거: "작성해 [테스트 디스크립션]" -->
 **Workflow:**
 1. King receives test creation command with description
-<!-- 1. 嫄대Ъ二쇨? ?붿뒪?щ┰?섏씠 ?ы븿???뚯뒪???앹꽦 紐낅졊??諛쏆뒿?덈떎 -->
+<!-- 1. 건물주가 디스크립션이 포함된 테스트 생성 명령을 받습니다 -->
 2. King checks Memory (planerHome.md) for test description patterns learned
-<!-- 2. 嫄대Ъ二쇨? ?몄썡??planerHome.md)?먯꽌 ?숈뒿???뚯뒪???붿뒪?щ┰???⑦꽩???뺤씤 -->
+<!-- 2. 건물주가 세월이(planerHome.md)에서 학습된 테스트 디스크립션 패턴을 확인 -->
 3. King validates description style against learned patterns
-<!-- 3. 嫄대Ъ二쇨? ?숈뒿???⑦꽩??????붿뒪?щ┰???ㅽ???寃利?-->
-4. King checks existing test files in `src/.cursor/agents/test/` and auto-increments file number (test_01.spec.ts ??test_02.spec.ts ??test_03.spec.ts, etc.)
-<!-- 4. 嫄대Ъ二쇨? `src/.cursor/agents/test/`??湲곗〈 ?뚯뒪???뚯씪???뺤씤?섍퀬 ?뚯씪 踰덊샇瑜??먮룞 利앷? (test_01.spec.ts ??test_02.spec.ts ??test_03.spec.ts ?? -->
+<!-- 3. 건물주가 학습된 패턴에 대해 디스크립션 스타일 검증 -->
+4. King checks existing test files in `src/.cursor/agents/test/` and auto-increments file number (test_01.spec.ts → test_02.spec.ts → test_03.spec.ts, etc.)
+<!-- 4. 건물주가 `src/.cursor/agents/test/`의 기존 테스트 파일을 확인하고 파일 번호를 자동 증가 (test_01.spec.ts → test_02.spec.ts → test_03.spec.ts 등) -->
 5. King imports necessary functions/hooks from utils/apis/hooks based on description
-<!-- 5. 嫄대Ъ二쇨? ?붿뒪?щ┰?섏뿉 湲곕컲?섏뿬 utils/apis/hooks?먯꽌 ?꾩슂???⑥닔/?낆쓣 import -->
+<!-- 5. 건물주가 디스크립션에 기반하여 utils/apis/hooks에서 필요한 함수/훅을 import -->
 6. King writes test following learned patterns (Arrange-Act-Assert, description format)
-<!-- 6. 嫄대Ъ二쇨? ?숈뒿???⑦꽩(Arrange-Act-Assert, ?붿뒪?щ┰???뺤떇)???곕씪 ?뚯뒪???묒꽦 -->
+<!-- 6. 건물주가 학습된 패턴(Arrange-Act-Assert, 디스크립션 형식)을 따라 테스트 작성 -->
 7. King stores implementation in memoryHome.md for future reference
-<!-- 7. 嫄대Ъ二쇨? ?ν썑 李몄“瑜??꾪빐 memoryHome.md??援ы쁽 ???-->
+<!-- 7. 건물주가 이후 참조를 위해 memoryHome.md에 구현 저장 -->
 
 **File Naming:** Auto-increments based on existing files (test_01.spec.ts, test_02.spec.ts, test_03.spec.ts, ...)
-<!-- ?뚯씪 ?ㅼ씠諛? 湲곗〈 ?뚯씪 湲곕컲 ?먮룞 利앷? (test_01.spec.ts, test_02.spec.ts, test_03.spec.ts, ...) -->
+<!-- 파일 네이밍: 기존 파일 기반 자동 증가 (test_01.spec.ts, test_02.spec.ts, test_03.spec.ts, ...) -->
 
-### ?꾩껜 ?뚯뒪?몄퐫??<!-- ?꾩껜 ?뚯뒪?몄퐫??-->
-**Trigger:** "?꾩껜 ?뚯뒪?몄퐫??
-<!-- ?몃━嫄? "?꾩껜 ?뚯뒪?몄퐫?? -->
+### 전체 테스트코드
+<!-- 전체 테스트코드 -->
+**Trigger:** "전체 테스트코드"
+<!-- 트리거: "전체 테스트코드" -->
 **Workflow:**
 1. King receives test execution command
-<!-- 1. 嫄대Ъ二쇨? ?뚯뒪???ㅽ뻾 紐낅졊??諛쏆뒿?덈떎 -->
+<!-- 1. 건물주가 테스트 실행 명령을 받습니다 -->
 2. King executes: `npm test -- --run`
-<!-- 2. 嫄대Ъ二쇨? ?ㅽ뻾: `npm test -- --run` -->
+<!-- 2. 건물주가 실행: `npm test -- --run` -->
 3. King collects test results (total tests, passed, failed, duration)
-<!-- 3. 嫄대Ъ二쇨? ?뚯뒪??寃곌낵 ?섏쭛 (珥??뚯뒪?? ?듦낵, ?ㅽ뙣, ?뚯슂?쒓컙) -->
+<!-- 3. 건물주가 테스트 결과 수집 (총 테스트, 통과, 실패, 소요시간) -->
 4. King reports summary to user
-<!-- 4. 嫄대Ъ二쇨? ?ъ슜?먯뿉寃??붿빟 蹂닿퀬 -->
+<!-- 4. 건물주가 사용자에게 요약 보고 -->
 
 **Expected Output:**
-<!-- ?덉긽 異쒕젰: -->
+<!-- 예상 출력: -->
 ```
-??All tests passed: [X] tests passed out of [Y] total
+✅ All tests passed: [X] tests passed out of [Y] total
 Duration: [Z] seconds
-?먮뒗
-??Some tests failed: [X] tests passed, [Y] tests failed out of [Z] total
+또는
+❌ Some tests failed: [X] tests passed, [Y] tests failed out of [Z] total
 Duration: [W] seconds
 ```
 
-### 由고듃 寃??<!-- 由고듃 寃??-->
-**Trigger:** "由고듃 寃??
-<!-- ?몃━嫄? "由고듃 寃?? -->
+### 린트 검사
+<!-- 린트 검사 -->
+**Trigger:** "린트 검사"
+<!-- 트리거: "린트 검사" -->
 **Workflow:**
 1. King receives lint check command
-<!-- 1. 嫄대Ъ二쇨? 由고듃 寃??紐낅졊??諛쏆뒿?덈떎 -->
+<!-- 1. 건물주가 린트 검사 명령을 받습니다 -->
 2. King executes TypeScript check: `npm run lint:tsc`
-<!-- 2. 嫄대Ъ二쇨? TypeScript 寃???ㅽ뻾: `npm run lint:tsc` -->
+<!-- 2. 건물주가 TypeScript 검사 실행: `npm run lint:tsc` -->
 3. King executes ESLint check: `npm run lint:eslint`
-<!-- 3. 嫄대Ъ二쇨? ESLint 寃???ㅽ뻾: `npm run lint:eslint` -->
+<!-- 3. 건물주가 ESLint 검사 실행: `npm run lint:eslint` -->
 4. King reports any errors or warnings
-<!-- 4. 嫄대Ъ二쇨? ?ㅻ쪟 ?먮뒗 寃쎄퀬 蹂닿퀬 -->
+<!-- 4. 건물주가 오류 또는 경고 보고 -->
 
 **Expected Output:** Linting results summary
-<!-- ?덉긽 異쒕젰: 由고똿 寃곌낵 ?붿빟 -->
+<!-- 예상 출력: 린팅 결과 요약 -->
 
-### 而ㅻ컠 ??泥댄겕
-<!-- 而ㅻ컠 ??泥댄겕 -->
-**Trigger:** "而ㅻ컠 ??泥댄겕"
-<!-- ?몃━嫄? "而ㅻ컠 ??泥댄겕" -->
+### 커밋 전 체크
+<!-- 커밋 전 체크 -->
+**Trigger:** "커밋 전 체크"
+<!-- 트리거: "커밋 전 체크" -->
 **Workflow:**
 1. King receives pre-commit validation command
-<!-- 1. 嫄대Ъ二쇨? 而ㅻ컠 ??寃利?紐낅졊??諛쏆뒿?덈떎 -->
+<!-- 1. 건물주가 커밋 전 검증 명령을 받습니다 -->
 2. King checks CRLF: `git diff --check`
-<!-- 2. 嫄대Ъ二쇨? CRLF ?뺤씤: `git diff --check` -->
+<!-- 2. 건물주가 CRLF 확인: `git diff --check` -->
 3. King validates TypeScript: `npm run lint:tsc`
-<!-- 3. 嫄대Ъ二쇨? TypeScript 寃利? `npm run lint:tsc` -->
+<!-- 3. 건물주가 TypeScript 검증: `npm run lint:tsc` -->
 4. King validates ESLint: `npm run lint:eslint`
-<!-- 4. 嫄대Ъ二쇨? ESLint 寃利? `npm run lint:eslint` -->
+<!-- 4. 건물주가 ESLint 검증: `npm run lint:eslint` -->
 5. King runs all tests: `npm test -- --run`
-<!-- 5. 嫄대Ъ二쇨? 紐⑤뱺 ?뚯뒪???ㅽ뻾: `npm test -- --run` -->
+<!-- 5. 건물주가 모든 테스트 실행: `npm test -- --run` -->
 6. King generates checklist report
-<!-- 6. 嫄대Ъ二쇨? 泥댄겕由ъ뒪??蹂닿퀬???앹꽦 -->
+<!-- 6. 건물주가 체크리스트 보고서 생성 -->
 
 **Expected Output:** Complete pre-commit validation report
-<!-- ?덉긽 異쒕젰: ?꾩쟾??而ㅻ컠 ??寃利?蹂닿퀬??-->
+<!-- 예상 출력: 완전한 커밋 전 검증 보고서 -->
 
-### 由щ럭 ?숈뒿
-<!-- 由щ럭 ?숈뒿 -->
-**Trigger:** "由щ럭 ?숈뒿" or automatic after "由щ럭??
-<!-- ?몃━嫄? "由щ럭 ?숈뒿" ?먮뒗 "由щ럭?? ???먮룞 -->
+### 리뷰 학습
+<!-- 리뷰 학습 -->
+**Trigger:** "리뷰 학습" or automatic after "리뷰해"
+<!-- 트리거: "리뷰 학습" 또는 "리뷰해" 후 자동 -->
 **Workflow:**
 1. King receives review learning command
-<!-- 1. 嫄대Ъ二쇨? 由щ럭 ?숈뒿 紐낅졊??諛쏆뒿?덈떎 -->
+<!-- 1. 건물주가 리뷰 학습 명령을 받습니다 -->
 2. King scans `src/.cursor/agents/review/` folder for new reviews
-<!-- 2. 嫄대Ъ二쇨? `src/.cursor/agents/review/` ?대뜑?먯꽌 ??由щ럭 ?ㅼ틪 -->
+<!-- 2. 건물주가 `src/.cursor/agents/review/` 폴더에서 새 리뷰 스캔 -->
 3. King delegates to Memory: "Process new review files"
-<!-- 3. 嫄대Ъ二쇨? ?몄썡?댁뿉寃??꾩엫: "??由щ럭 ?뚯씪 泥섎━" -->
+<!-- 3. 건물주가 세월이에게 위임: "새 리뷰 파일 처리" -->
 4. Memory extracts core information:
-<!-- 4. ?몄썡?닿? ?듭떖 ?뺣낫 異붿텧: -->
+<!-- 4. 세월이가 핵심 정보 추출: -->
    - Problem description and symptoms
-   <!-- 臾몄젣 ?ㅻ챸怨?利앹긽 -->
+   <!-- 문제 설명과 증상 -->
    - Root cause analysis
-   <!-- 洹쇰낯 ?먯씤 遺꾩꽍 -->
+   <!-- 근본 원인 분석 -->
    - Solution approach (correct and rejected)
-   <!-- ?닿껐梨??묎렐 (?щ컮瑜?寃껉낵 嫄곕???寃? -->
+   <!-- 해결책 접근 (올바른 것과 거부된 것) -->
    - Diagnostic mistakes (if any)
-   <!-- 吏꾨떒 ?ㅼ닔 (?덈뒗 寃쎌슦) -->
+   <!-- 진단 실수 (있는 경우) -->
    - Lessons learned
-   <!-- 援먰썕 -->
+   <!-- 교훈 -->
 5. Memory categorizes by pattern type:
-<!-- 5. ?몄썡?닿? ?⑦꽩 ?좏삎蹂꾨줈 遺꾨쪟: -->
+<!-- 5. 세월이가 패턴 유형별로 분류: -->
    - TypeScript/Type Safety Issues
    - UI/UX Bugs
    - Integration/Implementation Gaps
@@ -171,19 +173,19 @@ Duration: [W] seconds
    - Test Strategy/Coverage
    - Diagnostic Process Issues
 6. Memory stores in `memoryHome.md` Review Patterns section
-<!-- 6. ?몄썡?닿? `memoryHome.md` 由щ럭 ?⑦꽩 ?뱀뀡?????-->
+<!-- 6. 세월이가 `memoryHome.md` 리뷰 패턴 섹션에 저장 -->
 7. Memory updates Diagnostic Checklist
-<!-- 7. ?몄썡?닿? 吏꾨떒 泥댄겕由ъ뒪???낅뜲?댄듃 -->
+<!-- 7. 세월이가 진단 체크리스트 업데이트 -->
 8. King reports learning summary to user
-<!-- 8. 嫄대Ъ二쇨? ?ъ슜?먯뿉寃??숈뒿 ?붿빟 蹂닿퀬 -->
+<!-- 8. 건물주가 사용자에게 학습 요약 보고 -->
 
-**Format**: Problem ??Root Cause ??Solution ??Anti-Pattern ??Lesson ??Applies To
-<!-- ?뺤떇: 臾몄젣 ??洹쇰낯 ?먯씤 ???닿껐梨????덊떚?⑦꽩 ??援먰썕 ???곸슜 ???-->
+**Format**: Problem → Root Cause → Solution → Anti-Pattern → Lesson → Applies To
+<!-- 형식: 문제 → 근본 원인 → 해결책 → 안티패턴 → 교훈 → 적용 대상 -->
 
 **Expected Output:**
-<!-- ?덉긽 異쒕젰: -->
+<!-- 예상 출력: -->
 ```
-??Review Learning Complete
+✅ Review Learning Complete
 
 Processed: [N] new review files
 - review/[filename-1].md
@@ -201,25 +203,25 @@ All agents can now reference these patterns to avoid repeating mistakes.
 ```
 
 **Agent Benefits:**
-<!-- ?먯씠?꾪듃 ?댁젏: -->
+<!-- 에이전트 이점: -->
 - **Planner**: Check Review Patterns before planning to avoid past mistakes
-  <!-- 怨꾪쉷?? 怨쇨굅 ?ㅼ닔瑜??쇳븯湲??꾪빐 怨꾪쉷 ??由щ럭 ?⑦꽩 ?뺤씤 -->
+  <!-- 계획자: 과거 실수를 피하기 위해 계획 전 리뷰 패턴 확인 -->
 - **Worker**: Reference successful solutions and avoid anti-patterns
-  <!-- ?몃룞?? ?깃났?곸씤 ?닿껐梨?李몄“ 諛??덊떚?⑦꽩 諛⑹? -->
+  <!-- 노동자: 성공적인 해결책 참조 및 안티패턴 방지 -->
 - **Manager**: Improve diagnostic accuracy by learning from past misdiagnoses
-  <!-- 愿由ъ옄: 怨쇨굅 ?ㅼ쭊?먯꽌 ?숈뒿?섏뿬 吏꾨떒 ?뺥솗???μ긽 -->
+  <!-- 관리자: 과거 오진에서 학습하여 진단 정확도 향상 -->
 
 ## Command Management
-<!-- 紐낅졊 愿由?-->
+<!-- 명령 관리 -->
 - **Adding New Commands**: Add trigger keyword and workflow steps here
-<!-- ??紐낅졊 異붽?: ?몃━嫄??ㅼ썙?쒖? ?뚰겕?뚮줈 ?④퀎瑜??ш린??異붽? -->
+<!-- 새 명령 추가: 트리거 키워드와 워크플로 단계를 여기에 추가 -->
 - **Modifying Commands**: Update workflow steps as needed
-<!-- 紐낅졊 ?섏젙: ?꾩슂???곕씪 ?뚰겕?뚮줈 ?④퀎 ?낅뜲?댄듃 -->
+<!-- 명령 수정: 필요에 따라 워크플로 단계 업데이트 -->
 - **Removing Commands**: Delete trigger keyword and workflow section
-<!-- 紐낅졊 ?쒓굅: ?몃━嫄??ㅼ썙?쒖? ?뚰겕?뚮줈 ?뱀뀡 ??젣 -->
+<!-- 명령 제거: 트리거 키워드와 워크플로 섹션 삭제 -->
 
 ## Workflow Tracking
-<!-- ?뚰겕?뚮줈 異붿쟻 -->
+<!-- 워크플로 추적 -->
 Each command execution creates entries in:
 - `src/.cursor/agents/home/kingHome.md` - King's actions and decisions
 - `src/.cursor/agents/home/planerHome.md` - Planner's plans and workflows
@@ -227,10 +229,9 @@ Each command execution creates entries in:
 - `src/.cursor/agents/home/feedbackHome.md` - Manager's reviews
 - `src/.cursor/agents/home/memoryHome.md` - Memory's storage
 
-<!-- 媛?紐낅졊 ?ㅽ뻾????ぉ???앹꽦 -->
-<!-- - `src/.cursor/agents/home/kingHome.md` - 嫄대Ъ二쇱쓽 ?됰룞怨?寃곗젙 -->
-<!-- - `src/.cursor/agents/home/planerHome.md` - 怨꾪쉷?먯쓽 怨꾪쉷怨??뚰겕?뚮줈 -->
-<!-- - `src/.cursor/agents/home/toolsHome.md` - ?몃룞?먯쓽 援ы쁽 -->
-<!-- - `src/.cursor/agents/home/feedbackHome.md` - 愿由ъ옄??寃??-->
-<!-- - `src/.cursor/agents/home/memoryHome.md` - ?몄썡?댁쓽 ???-->
-
+<!-- 각 명령 실행은 다음에 항목 생성 -->
+<!-- - `src/.cursor/agents/home/kingHome.md` - 건물주의 행동과 결정 -->
+<!-- - `src/.cursor/agents/home/planerHome.md` - 계획자의 계획과 워크플로 -->
+<!-- - `src/.cursor/agents/home/toolsHome.md` - 노동자의 구현 -->
+<!-- - `src/.cursor/agents/home/feedbackHome.md` - 관리자의 검토 -->
+<!-- - `src/.cursor/agents/home/memoryHome.md` - 세월이의 저장 -->

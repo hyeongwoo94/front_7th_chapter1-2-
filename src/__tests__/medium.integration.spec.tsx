@@ -191,6 +191,125 @@ describe('일정 뷰', () => {
     const januaryFirstCell = within(monthView).getByText('1').closest('td')!;
     expect(within(januaryFirstCell).getByText('신정')).toBeInTheDocument();
   });
+
+  it('주별 뷰에서 반복 일정에는 반복 아이콘이 표시되고 일반 일정에는 표시되지 않는다', async () => {
+    // Mock 데이터로 일반 일정과 반복 일정을 명시적으로 설정
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({
+          events: [
+            {
+              id: '1',
+              title: '일반 회의',
+              date: '2025-10-02',
+              startTime: '09:00',
+              endTime: '10:00',
+              description: '일반 회의입니다.',
+              location: '회의실 A',
+              category: '업무',
+              repeat: { type: 'none', interval: 0 },
+              notificationTime: 10,
+            },
+            {
+              id: '2',
+              title: '반복 회의',
+              date: '2025-10-03',
+              startTime: '11:00',
+              endTime: '12:00',
+              description: '반복 회의입니다.',
+              location: '회의실 B',
+              category: '업무',
+              repeat: { type: 'weekly', interval: 1 },
+              notificationTime: 10,
+            },
+          ],
+        });
+      })
+    );
+
+    const { user } = setup(<App />);
+
+    // 일정 로딩 완료 대기
+    await screen.findByText('일정 로딩 완료!');
+
+    // Week View로 전환
+    await user.click(within(screen.getByLabelText('뷰 타입 선택')).getByRole('combobox'));
+    await user.click(screen.getByRole('option', { name: 'week-option' }));
+
+    const weekView = within(screen.getByTestId('week-view'));
+
+    // 일반 회의와 반복 회의가 week view에 표시될 때까지 대기
+    await weekView.findAllByText('일반 회의');
+    await weekView.findAllByText('반복 회의');
+
+    // 일반 회의가 있는 셀 찾기
+    const normalEventCell = weekView.getAllByText('일반 회의')[0].closest('div');
+    // 일반 일정에는 Repeat 아이콘이 없어야 함
+    expect(within(normalEventCell!).queryByTestId('RepeatIcon')).not.toBeInTheDocument();
+
+    // 반복 회의가 있는 셀 찾기
+    const recurringEventCell = weekView.getAllByText('반복 회의')[0].closest('div');
+    // 반복 일정에는 Repeat 아이콘이 있어야 함
+    expect(within(recurringEventCell!).getByTestId('RepeatIcon')).toBeInTheDocument();
+  }, 10000);
+
+  it('월별 뷰에서 반복 일정에는 반복 아이콘이 표시되고 일반 일정에는 표시되지 않는다', async () => {
+    // Mock 데이터로 일반 일정과 반복 일정을 명시적으로 설정
+    server.use(
+      http.get('/api/events', () => {
+        return HttpResponse.json({
+          events: [
+            {
+              id: '3',
+              title: '일반 미팅',
+              date: '2025-10-15',
+              startTime: '14:00',
+              endTime: '15:00',
+              description: '일반 미팅입니다.',
+              location: '회의실 C',
+              category: '업무',
+              repeat: { type: 'none', interval: 0 },
+              notificationTime: 10,
+            },
+            {
+              id: '4',
+              title: '반복 미팅',
+              date: '2025-10-16',
+              startTime: '16:00',
+              endTime: '17:00',
+              description: '반복 미팅입니다.',
+              location: '회의실 D',
+              category: '업무',
+              repeat: { type: 'monthly', interval: 1 },
+              notificationTime: 10,
+            },
+          ],
+        });
+      })
+    );
+
+    setup(<App />);
+
+    // 일정 로딩 완료 대기
+    await screen.findByText('일정 로딩 완료!');
+
+    // Month View는 기본값이므로 별도 전환 불필요
+    const monthView = within(screen.getByTestId('month-view'));
+
+    // 일반 미팅과 반복 미팅이 month view에 표시될 때까지 대기
+    await monthView.findAllByText('일반 미팅');
+    await monthView.findAllByText('반복 미팅');
+
+    // 일반 미팅이 있는 셀 찾기
+    const normalEventCell = monthView.getAllByText('일반 미팅')[0].closest('div');
+    // 일반 일정에는 Repeat 아이콘이 없어야 함
+    expect(within(normalEventCell!).queryByTestId('RepeatIcon')).not.toBeInTheDocument();
+
+    // 반복 미팅이 있는 셀 찾기
+    const recurringEventCell = monthView.getAllByText('반복 미팅')[0].closest('div');
+    // 반복 일정에는 Repeat 아이콘이 있어야 함
+    expect(within(recurringEventCell!).getByTestId('RepeatIcon')).toBeInTheDocument();
+  }, 10000);
 });
 
 describe('검색 기능', () => {

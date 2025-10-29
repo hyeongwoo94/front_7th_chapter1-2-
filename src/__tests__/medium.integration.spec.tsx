@@ -1,6 +1,6 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { render, screen, within, act } from '@testing-library/react';
+import { render, screen, within, act, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { SnackbarProvider } from 'notistack';
@@ -460,4 +460,137 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
   });
 
   expect(screen.getByText('10분 후 기존 회의 일정이 시작됩니다.')).toBeInTheDocument();
+});
+
+describe('반복 일정 수정 시 단일/전체 선택 기능', () => {
+  it('반복 일정 단일 수정 시 일반 일정으로 변환된다', async () => {
+    const { createRecurringEvent, getCurrentTestDate } =
+      await import('./fixtures/eventFixtures');
+    const { setupRecurringEventMocks } = await import('./helpers/mockHelpers');
+    const { waitForEventInList, saveEventWithDialogHandling } =
+      await import('./helpers/asyncHelpers');
+    const { hasRepeatIcon } = await import('./helpers/domHelpers');
+
+    const recurringEvent = createRecurringEvent({
+      title: '주간 회의',
+      date: getCurrentTestDate(7),
+    });
+
+    setupRecurringEventMocks([recurringEvent]);
+
+    const { user } = setup(<App />);
+    await screen.findByText('일정 로딩 완료!');
+
+    const editButtons = await screen.findAllByLabelText('Edit event');
+    await user.click(editButtons[0]);
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '특별 회의');
+
+    await saveEventWithDialogHandling(user, {
+      editOptionsChoice: 'single',
+      handleOverlap: true,
+    });
+
+    const newEvent = await waitForEventInList('특별 회의');
+    expect(newEvent).toBeInTheDocument();
+    expect(hasRepeatIcon('특별 회의')).toBe(false);
+
+    const eventList = within(screen.getByTestId('event-list'));
+    const allEventElements = eventList.queryAllByText(/./);
+    console.log(
+      'All events in list:',
+      allEventElements.map((el) => el.textContent)
+    );
+
+    const allWeeklyMeetings = eventList.queryAllByText('주간 회의');
+    console.log('Found "주간 회의" instances:', allWeeklyMeetings.length);
+
+    expect(newEvent).toBeInTheDocument();
+    expect(hasRepeatIcon('특별 회의')).toBe(false);
+  }, 10000);
+
+  it('반복 일정 전체 수정 시 모든 인스턴스가 업데이트된다', async () => {
+    const { createRecurringEvent, getCurrentTestDate } =
+      await import('./fixtures/eventFixtures');
+    const { setupRecurringEventMocks } = await import('./helpers/mockHelpers');
+    const { waitForEventInList, saveEventWithDialogHandling } =
+      await import('./helpers/asyncHelpers');
+    const { hasRepeatIcon } = await import('./helpers/domHelpers');
+
+    const recurringEvent = createRecurringEvent({
+      title: '주간 회의',
+      date: getCurrentTestDate(7),
+    });
+
+    setupRecurringEventMocks([recurringEvent]);
+
+    const { user } = setup(<App />);
+    await screen.findByText('일정 로딩 완료!');
+
+    const editButtons = await screen.findAllByLabelText('Edit event');
+    await user.click(editButtons[0]);
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '팀 미팅');
+
+    await saveEventWithDialogHandling(user, {
+      editOptionsChoice: 'all',
+      handleOverlap: true,
+    });
+
+    const updatedEvent = await waitForEventInList('팀 미팅');
+    expect(updatedEvent).toBeInTheDocument();
+
+    const eventList = within(screen.getByTestId('event-list'));
+    const allEventElements = eventList.queryAllByText(/./);
+    console.log(
+      'All events after edit all:',
+      allEventElements.map((el) => el.textContent)
+    );
+
+    console.log('Has repeat icon for 팀 미팅?', hasRepeatIcon('팀 미팅'));
+
+    expect(updatedEvent).toBeInTheDocument();
+
+    const oldTitleEvents = eventList.queryAllByText('주간 회의');
+    expect(oldTitleEvents.length).toBe(0);
+  }, 10000);
+
+  it('일반 일정 수정 시 다이얼로그가 표시되지 않는다', async () => {
+    const { createNormalEvent, getCurrentTestDate } =
+      await import('./fixtures/eventFixtures');
+    const { setupRecurringEventMocks } = await import('./helpers/mockHelpers');
+    const { waitForEventInList } = await import('./helpers/asyncHelpers');
+
+    const normalEvent = createNormalEvent({
+      title: '단일 미팅',
+      date: getCurrentTestDate(9),
+    });
+
+    setupRecurringEventMocks([normalEvent]);
+
+    const { user } = setup(<App />);
+    await screen.findByText('일정 로딩 완료!');
+
+    await waitForEventInList('단일 미팅');
+
+    const editButtons = await screen.findAllByLabelText('Edit event');
+    await user.click(editButtons[0]);
+
+    await user.clear(screen.getByLabelText('제목'));
+    await user.type(screen.getByLabelText('제목'), '수정된 미팅');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    await waitFor(
+      () => {
+        expect(screen.queryByText('반복 일정 수정')).not.toBeInTheDocument();
+      },
+      { timeout: 1000 }
+    );
+
+    const updatedEvent = await waitForEventInList('수정된 미팅');
+    expect(updatedEvent).toBeInTheDocument();
+  }, 10000);
 });

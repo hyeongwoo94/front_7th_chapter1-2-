@@ -36,6 +36,7 @@ import {
 import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
+import EditOptionsDialog from './components/EditOptionsDialog';
 import Modal from './components/Modal';
 import { useCalendarView } from './hooks/useCalendarView.ts';
 import { useEventForm } from './hooks/useEventForm.ts';
@@ -120,6 +121,8 @@ function App() {
   const [overlappingEvents, setOverlappingEvents] = useState<Event[]>([]);
   const [allowBypass, setAllowBypass] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditOptionsDialogOpen, setIsEditOptionsDialogOpen] = useState(false);
+  const [pendingEventData, setPendingEventData] = useState<Event | EventForm | null>(null);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -172,6 +175,14 @@ function App() {
           notificationTime,
         };
 
+    // Check if editing recurring event
+    // <!-- 반복 일정 수정 여부 확인 -->
+    if (editingEvent && editingEvent.repeat.type !== 'none') {
+      setPendingEventData(eventData);
+      setIsEditOptionsDialogOpen(true);
+      return;
+    }
+
     const overlapping = findOverlappingEvents(eventData, events);
     if (overlapping.length > 0) {
       const canBypass = hasRecurringNormalConflict(eventData, overlapping);
@@ -182,6 +193,87 @@ function App() {
       await saveEvent(eventData);
       resetForm();
     }
+  };
+
+  const handleEditSingle = async () => {
+    if (!pendingEventData) return;
+
+    // Remove ID and repeat metadata to create NEW event
+    // <!-- ID와 반복 메타데이터 제거하여 새 이벤트 생성 -->
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, repeat, ...eventWithoutIdAndRepeat } = pendingEventData as Event;
+
+    const singleEventData: EventForm = {
+      ...eventWithoutIdAndRepeat,
+      repeat: {
+        type: 'none',
+        interval: 0,
+      },
+    };
+
+    setIsEditOptionsDialogOpen(false);
+    setPendingEventData(null);
+
+    // CRITICAL: Clear editingEvent so useEventOperations uses POST
+    // <!-- 중요: editingEvent를 지워서 useEventOperations가 POST를 사용하도록 함 -->
+    setEditingEvent(null);
+
+    // Check for overlaps after closing dialog
+    // <!-- 다이얼로그 닫은 후 오버랩 체크 -->
+    const overlapping = findOverlappingEvents(singleEventData, events);
+    if (overlapping.length > 0) {
+      const canBypass = hasRecurringNormalConflict(singleEventData, overlapping);
+      setOverlappingEvents(overlapping);
+      setAllowBypass(canBypass);
+      setIsOverlapDialogOpen(true);
+      return;
+    }
+
+    // Now saveEvent will use POST (creating new event)
+    // <!-- 이제 saveEvent는 POST를 사용 (새 이벤트 생성) -->
+    await saveEvent(singleEventData);
+    resetForm();
+  };
+
+  const handleEditAll = async () => {
+    if (!pendingEventData || !editingEvent) return;
+
+    // Preserve original repeat information
+    // <!-- 원본 반복 정보 보존 -->
+    const allEditData = {
+      ...pendingEventData,
+      repeat: {
+        ...editingEvent.repeat, // Use original event's repeat info
+        // <!-- 원본 이벤트의 반복 정보 사용 -->
+      },
+    };
+
+    setIsEditOptionsDialogOpen(false);
+    setPendingEventData(null);
+
+    // Keep editingEvent set - useEventOperations will use PUT
+    // <!-- editingEvent 유지 - useEventOperations가 PUT 사용 -->
+    // It will automatically use originalEventId from repeat metadata
+    // <!-- repeat 메타데이터의 originalEventId를 자동으로 사용 -->
+
+    // Check for overlaps
+    // <!-- 오버랩 체크 -->
+    const overlapping = findOverlappingEvents(allEditData, events);
+    if (overlapping.length > 0) {
+      const canBypass = hasRecurringNormalConflict(allEditData, overlapping);
+      setOverlappingEvents(overlapping);
+      setAllowBypass(canBypass);
+      setIsOverlapDialogOpen(true);
+      return;
+    }
+
+    await saveEvent(allEditData);
+    resetForm();
+  };
+
+  const handleCloseEditOptions = () => {
+    setIsEditOptionsDialogOpen(false);
+    setPendingEventData(null);
   };
 
   const renderWeekView = () => {
@@ -729,6 +821,13 @@ function App() {
           )}
         </DialogActions>
       </Dialog>
+
+      <EditOptionsDialog
+        open={isEditOptionsDialogOpen}
+        onClose={handleCloseEditOptions}
+        onEditSingle={handleEditSingle}
+        onEditAll={handleEditAll}
+      />
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 

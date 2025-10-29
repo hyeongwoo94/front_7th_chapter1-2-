@@ -160,6 +160,253 @@ interface Example {
 
 ---
 
+## 7. Error Recovery Process ⚠️
+<!-- 오류 복구 프로세스 ⚠️ -->
+
+**When same error occurs 2+ times during implementation:**
+<!-- 구현 중 같은 오류가 2번 이상 발생할 때: -->
+
+### Step 1: Immediate Pause ⏸️
+<!-- 1단계: 즉시 중단 -->
+
+**Trigger**: Same error/test failure occurs twice despite fixes
+<!-- 트리거: 수정했는데도 같은 오류/테스트 실패가 두 번 발생 -->
+
+**Action**: 
+```
+1. Stop current implementation immediately
+   <!-- 현재 구현 즉시 중단 -->
+2. Document the error pattern
+   <!-- 오류 패턴 문서화 -->
+3. Do NOT attempt third fix
+   <!-- 세 번째 수정 시도하지 말 것 -->
+```
+
+### Step 2: Conduct Review 🔍
+<!-- 2단계: 리뷰 실시 -->
+
+**Action**: Create review document in `review/` folder
+<!-- 작업: `review/` 폴더에 리뷰 문서 생성 -->
+
+**Review Document Must Include**:
+```markdown
+# Code Review Report
+
+**Date**: YYYY-MM-DD
+**Task**: [작업명]
+**Status**: ⚠️ PAUSED DUE TO RECURRING ERROR
+
+## Error Pattern
+<!-- 오류 패턴 -->
+**Error**: [오류 메시지]
+**Occurrences**: [1차 발생 상황], [2차 발생 상황]
+**Attempted Fixes**: [시도한 해결책들]
+
+## Root Cause Analysis
+<!-- 근본 원인 분석 -->
+**Why error occurred**: [분석]
+**Why fixes didn't work**: [분석]
+**Missing understanding**: [부족했던 이해]
+
+## Detailed Solutions
+<!-- 상세 해결방안 -->
+1. **Solution 1**: [구체적 해결책 + 코드 예시]
+2. **Solution 2**: [대안 해결책]
+3. **Prevention**: [재발 방지책]
+
+## Updated Prerequisites
+<!-- 업데이트된 전제조건 -->
+- [ ] [새로 필요한 이해사항 1]
+- [ ] [새로 필요한 유틸리티/헬퍼 1]
+- [ ] [새로 필요한 설정 1]
+```
+
+**Reference**: Check existing reviews for pattern
+- `review/2025-10-29_integration-test-recurring-event-issue-v2.md`
+- Other review files in `review/` folder
+
+### Step 3: Update This PRD 📝
+<!-- 3단계: 이 PRD 업데이트 -->
+
+**Action**: Modify the request document based on review findings
+<!-- 작업: 리뷰 결과를 바탕으로 request 문서 수정 -->
+
+**What to Add/Modify**:
+
+**A. Add to Section 3 (Technical Requirements)**:
+```markdown
+### Prerequisites (New)
+<!-- 전제조건 (신규) -->
+**MUST complete before implementation:**
+- [ ] [리뷰에서 발견한 필수 준비사항 1]
+- [ ] [리뷰에서 발견한 필수 준비사항 2]
+- [ ] [필요한 헬퍼/유틸리티 생성]
+
+**MUST understand before coding:**
+- [ ] [리뷰에서 발견한 이해 필요 사항 1]
+- [ ] [기존 시스템 동작 방식 X]
+```
+
+**B. Add to Section 4 (Implementation Checklist)**:
+```markdown
+### Error Prevention (New)
+<!-- 오류 방지 (신규) -->
+**Based on previous attempt failures:**
+
+**Before each step:**
+- [ ] [리뷰에서 발견한 체크포인트 1]
+- [ ] [리뷰에서 발견한 체크포인트 2]
+
+**Known Pitfalls:**
+- ⚠️ [함정 1]: [해결책]
+- ⚠️ [함정 2]: [해결책]
+```
+
+**C. Add New Section: "Known Issues & Solutions"**:
+```markdown
+## 8. Known Issues & Solutions (New)
+<!-- 알려진 문제 및 해결책 (신규) -->
+
+### Issue 1: [이슈 제목]
+**Symptom**: [증상]
+**Root Cause**: [원인]
+**Solution**: [해결책 + 코드 예시]
+
+### Issue 2: [이슈 제목]
+**Symptom**: [증상]
+**Root Cause**: [원인]
+**Solution**: [해결책 + 코드 예시]
+```
+
+### Step 4: Restart Implementation 🔄
+<!-- 4단계: 구현 재시작 -->
+
+**Before Restart - Verification Checklist**:
+```
+- [ ] Review document created in review/ folder
+- [ ] PRD updated with new prerequisites
+- [ ] PRD updated with error prevention checklist
+- [ ] PRD updated with known issues section
+- [ ] All prerequisites from review are ready
+- [ ] Root cause is understood
+- [ ] Solution approach is clear
+```
+
+**Restart Protocol**:
+1. ✅ Read updated PRD completely
+2. ✅ Complete all new prerequisites
+3. ✅ Follow new error prevention checklist
+4. ✅ Implement with solutions from review
+5. ⚠️ If same error occurs again → Escalate to King for approach change
+
+### Step 5: Post-Implementation Update 📊
+<!-- 5단계: 구현 후 업데이트 -->
+
+**After successful completion**:
+```markdown
+Add to bottom of this PRD:
+
+---
+
+## Implementation History
+<!-- 구현 이력 -->
+
+### Attempt 1: [날짜]
+- **Status**: ❌ Failed
+- **Error**: [오류 설명]
+- **Review**: [리뷰 파일 링크]
+
+### Attempt 2: [날짜]  
+- **Status**: ✅ Success
+- **Changes**: [PRD에 추가된 내용 요약]
+- **Key Learnings**: [핵심 교훈 3가지]
+```
+
+---
+
+### Example: Error Recovery in Action
+<!-- 예시: 실제 오류 복구 프로세스 -->
+
+```
+Scenario: Integration test fails twice
+
+1️⃣ First Failure:
+   - Test: "반복 일정 단일 수정"
+   - Error: "Unable to find element: 특별 회의"
+   - Fix: Added await
+   - Result: Still failed
+
+2️⃣ Second Failure (TRIGGER):
+   - Same test still fails
+   - Same error message
+   - Fix: Increased timeout
+   - Result: Still failed
+   → ⏸️ PAUSE IMPLEMENTATION
+
+3️⃣ Review:
+   - Create: review/2025-10-29_recurring-test-failure.md
+   - Found: Mock data not loaded, async timing issue
+   - Solution: Need test helpers for async handling
+
+4️⃣ Update PRD:
+   - Add Section 3: Prerequisites
+     * Create asyncHelpers.ts BEFORE tests
+     * Create mockHelpers.ts BEFORE tests
+   - Add Section 4: Error Prevention
+     * Always use waitForEventInList()
+     * Never use immediate getByText() after state change
+   - Add Section 8: Known Issues
+     * Issue: Element not found
+     * Solution: Use proper wait helpers
+
+5️⃣ Restart:
+   - ✅ Create asyncHelpers.ts first
+   - ✅ Create mockHelpers.ts first  
+   - ✅ Use helpers in all tests
+   - ✅ Tests pass successfully
+
+6️⃣ Document:
+   - Add Implementation History to PRD
+   - Record: Attempt 1 failed, Attempt 2 succeeded
+   - Key Learning: Always create test utilities first
+```
+
+---
+
+### When to Use This Process
+<!-- 이 프로세스를 사용해야 할 때 -->
+
+**✅ YES - Use this process when:**
+- Same test fails twice with same error
+- Same bug reappears after "fix"
+- Implementation stuck on same issue 2+ times
+- Approach isn't working despite multiple attempts
+
+**❌ NO - Don't use for:**
+- Different errors (new issues)
+- Typos or simple syntax errors
+- First occurrence of any error
+- Expected TDD failures (Red phase)
+
+---
+
+### Success Metrics
+<!-- 성공 지표 -->
+
+**This process is working when:**
+- Second attempt succeeds after review
+- Same error doesn't occur third time
+- PRD becomes more comprehensive over time
+- Future similar features reference updated PRD
+
+**This process needs improvement when:**
+- Still failing after PRD update
+- Review doesn't find root cause
+- Third attempt still has issues
+→ Escalate to King for architecture review
+
+---
+
 # 📚 Template Usage Guide
 <!-- 템플릿 사용 가이드 -->
 
@@ -211,6 +458,30 @@ interface Example {
    - `memoryHome.md`: Patterns
    - `company/test-team.md`: Testing
    - `company/feature-team.md`: Implementation
+
+**⚠️ CRITICAL: Error Recovery Protocol**
+<!-- 오류 복구 프로토콜 -->
+
+**IF same error occurs twice:**
+```
+🔴 STOP immediately
+📝 Follow Section 7: Error Recovery Process
+1. Pause implementation
+2. Create review document
+3. Update this PRD
+4. Restart with updated PRD
+```
+
+**DO NOT:**
+- ❌ Try the same fix three times
+- ❌ Continue without understanding root cause
+- ❌ Skip review process
+- ❌ Ignore recurring patterns
+
+**Success Pattern:**
+```
+Error 1 → Fix → Error 2 (SAME) → 🛑 PAUSE → Review → Update PRD → Restart → ✅ Success
+```
 
 ---
 
@@ -315,8 +586,24 @@ After: "팀 데일리" 09:30-10:30 (50 instances, all updated)
 4. **Keep it Simple**: If unsure, ask user. Don't guess.
    <!-- 단순하게 유지: 불확실하면 사용자에게 질문. 추측하지 말 것 -->
 
+5. **Error Recovery is Built-In**: Same error twice = Pause & Review (Section 7)
+   <!-- 오류 복구는 내장됨: 같은 오류 2번 = 일시중지 & 리뷰 (섹션 7) -->
+   - Prevents wasting time on wrong approach
+   <!-- 잘못된 접근으로 시간 낭비 방지 -->
+   - Builds knowledge into PRD for future
+   <!-- 미래를 위해 PRD에 지식 축적 -->
+   - Makes second attempt much more likely to succeed
+   <!-- 두 번째 시도 성공 가능성 대폭 증가 -->
+
 ---
 
-**PRD Template Version**: 3.0 (Simplified 2024-10-29)
-<!-- PRD 템플릿 버전: 3.0 (2024-10-29 간소화) -->
+**PRD Template Version**: 4.0 (2025-10-29 - Added Error Recovery Process)
+<!-- PRD 템플릿 버전: 4.0 (2025-10-29 - 오류 복구 프로세스 추가) -->
+
+**What's New in v4.0:**
+- ✅ Section 7: Error Recovery Process (5-step protocol)
+- ✅ Automatic review trigger on 2nd error occurrence
+- ✅ PRD self-update mechanism
+- ✅ Implementation History tracking
+- ✅ Worker error recovery protocol in Usage Guide
 

@@ -12,6 +12,8 @@ interface EditOptionsDialogProps {
   onClose: () => void;
   onEditSingle: () => void;
   onEditAll: () => void;
+  title?: string;
+  message?: string;
 }
 
 const EditOptionsDialog = ({
@@ -19,12 +21,14 @@ const EditOptionsDialog = ({
   onClose,
   onEditSingle,
   onEditAll,
+  title = '반복 일정 수정',
+  message = '해당 일정만 수정하시겠어요?',
 }: EditOptionsDialogProps) => {
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>반복 일정 수정</DialogTitle>
+      <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>해당 일정만 수정하시겠어요?</DialogContentText>
+        <DialogContentText>{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={onEditSingle}>예</Button>

@@ -464,11 +464,11 @@ it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트
 
 describe('반복 일정 수정 시 단일/전체 선택 기능', () => {
   it('반복 일정 단일 수정 시 일반 일정으로 변환된다', async () => {
-    const { createRecurringEvent, getCurrentTestDate } =
-      await import('./fixtures/eventFixtures');
+    const { createRecurringEvent, getCurrentTestDate } = await import('./fixtures/eventFixtures');
     const { setupRecurringEventMocks } = await import('./helpers/mockHelpers');
-    const { waitForEventInList, saveEventWithDialogHandling } =
-      await import('./helpers/asyncHelpers');
+    const { waitForEventInList, saveEventWithDialogHandling } = await import(
+      './helpers/asyncHelpers'
+    );
     const { hasRepeatIcon } = await import('./helpers/domHelpers');
 
     const recurringEvent = createRecurringEvent({
@@ -511,11 +511,11 @@ describe('반복 일정 수정 시 단일/전체 선택 기능', () => {
   }, 10000);
 
   it('반복 일정 전체 수정 시 모든 인스턴스가 업데이트된다', async () => {
-    const { createRecurringEvent, getCurrentTestDate } =
-      await import('./fixtures/eventFixtures');
+    const { createRecurringEvent, getCurrentTestDate } = await import('./fixtures/eventFixtures');
     const { setupRecurringEventMocks } = await import('./helpers/mockHelpers');
-    const { waitForEventInList, saveEventWithDialogHandling } =
-      await import('./helpers/asyncHelpers');
+    const { waitForEventInList, saveEventWithDialogHandling } = await import(
+      './helpers/asyncHelpers'
+    );
     const { hasRepeatIcon } = await import('./helpers/domHelpers');
 
     const recurringEvent = createRecurringEvent({
@@ -558,8 +558,7 @@ describe('반복 일정 수정 시 단일/전체 선택 기능', () => {
   }, 10000);
 
   it('일반 일정 수정 시 다이얼로그가 표시되지 않는다', async () => {
-    const { createNormalEvent, getCurrentTestDate } =
-      await import('./fixtures/eventFixtures');
+    const { createNormalEvent, getCurrentTestDate } = await import('./fixtures/eventFixtures');
     const { setupRecurringEventMocks } = await import('./helpers/mockHelpers');
     const { waitForEventInList } = await import('./helpers/asyncHelpers');
 

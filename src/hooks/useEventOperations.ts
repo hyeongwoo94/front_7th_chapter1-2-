@@ -16,16 +16,22 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
       }
       const { events: rawEvents } = await response.json();
 
-      // Expand recurring events for display
-      // <!-- 표시를 위해 반복 일정 펼치기 -->
+      // New approach: DB stores actual instances, not templates
+      // Only expand old template-style events (those without repeat.id)
+      // <!-- 새 방식: DB에 실제 인스턴스 저장, 템플릿 아님 -->
+      // <!-- repeat.id 없는 구형 템플릿 이벤트만 확장 -->
       const expandedEvents: Event[] = [];
       for (const event of rawEvents) {
-        if (event.repeat.type !== 'none') {
-          // Generate all occurrences of recurring event
-          // <!-- 반복 일정의 모든 발생 생성 -->
+        const isTemplateEvent = event.repeat.type !== 'none' && !event.repeat.id;
+
+        if (isTemplateEvent) {
+          // Old template-style event: expand it
+          // <!-- 구형 템플릿 이벤트: 확장 -->
           const occurrences = generateRecurringEvents(event);
           expandedEvents.push(...occurrences);
         } else {
+          // Single event or already-expanded instance: use as is
+          // <!-- 단일 이벤트 또는 이미 확장된 인스턴스: 그대로 사용 -->
           expandedEvents.push(event);
         }
       }
@@ -41,10 +47,10 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
     try {
       let response;
 
-      // Save as single event regardless of repeat type
-      // Recurring events will be expanded when displayed
-      // <!-- 반복 유형과 관계없이 단일 이벤트로 저장 -->
-      // <!-- 반복 일정은 표시할 때 펼쳐짐 -->
+      // Check if this is a new repeating event
+      // <!-- 새로운 반복 일정인지 확인 -->
+      const isNewRepeatingEvent = !editing && eventData.repeat.type !== 'none';
+
       if (editing) {
         const event = eventData as Event;
         // For recurring events, use original event ID and original start date
@@ -75,7 +81,20 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(updateData),
         });
+      } else if (isNewRepeatingEvent) {
+        // New repeating event: generate all instances and save at once
+        // <!-- 새로운 반복 일정: 모든 인스턴스를 생성하여 한 번에 저장 -->
+        const tempEvent = { ...eventData, id: 'temp' } as Event;
+        const recurringEvents = generateRecurringEvents(tempEvent);
+
+        response = await fetch('/api/events-list', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ events: recurringEvents }),
+        });
       } else {
+        // Single event: save as is
+        // <!-- 단일 이벤트: 그대로 저장 -->
         response = await fetch('/api/events', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -100,14 +119,9 @@ export const useEventOperations = (editing: boolean, onSave?: () => void) => {
 
   const deleteEvent = async (id: string) => {
     try {
-      // Find the event to check if it's a recurring event
-      // <!-- 반복 일정인지 확인하기 위해 이벤트 찾기 -->
-      const eventToDelete = events.find((e) => e.id === id);
-      const deleteId = eventToDelete?.repeat?.originalEventId || id;
-      // Use original event ID if it's a recurring event occurrence
-      // <!-- 반복 일정의 발생인 경우 원본 이벤트 ID 사용 -->
-
-      const response = await fetch(`/api/events/${deleteId}`, { method: 'DELETE' });
+      // Simply delete the ID provided - no transformation needed
+      // <!-- 제공된 ID만 삭제 - 변환 불필요 -->
+      const response = await fetch(`/api/events/${id}`, { method: 'DELETE' });
 
       if (!response.ok) {
         throw new Error('Failed to delete event');

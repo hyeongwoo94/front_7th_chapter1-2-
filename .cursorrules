@@ -50,7 +50,20 @@ Automatically execute the following rules for each conversation:
    - Content: Formal code review report with Manager role
    <!-- 내용: Manager 역할로 공식 코드 리뷰 보고서 -->
    
-   **B. Regular Conversation** (all other cases):
+   **B. Request Document Creation** (when user says "작성해" and Planner creates PRD):
+   <!-- 요청 문서 작성 (사용자가 "작성해"라고 말하고 Planner가 PRD를 만들 때): -->
+   - Save to `src/.cursor/agents/request/` folder ONLY (DO NOT save to histroy folder)
+   <!-- `src/.cursor/agents/request/` 폴더에만 저장 (histroy 폴더에 저장하지 않음) -->
+   - File naming: `feature-name.md` (descriptive, kebab-case)
+   <!-- 파일명: `기능명.md` (설명적, kebab-case) -->
+   - Example: `recurring-event-delete-single-or-all.md`
+   <!-- 예시: `recurring-event-delete-single-or-all.md` -->
+   - Content: PRD document using `prd.md` template
+   <!-- 내용: `prd.md` 템플릿을 사용한 PRD 문서 -->
+   - Reason: Request document itself is sufficient documentation
+   <!-- 이유: 요청 문서 자체가 충분한 문서화임 -->
+   
+   **C. Regular Conversation** (all other cases):
    <!-- 일반 대화 (다른 모든 경우): -->
    - Save to `src/.cursor/agents/histroy/` folder with date-based folder structure
    <!-- 날짜별 폴더 구조로 `src/.cursor/agents/histroy/` 폴더에 저장 -->

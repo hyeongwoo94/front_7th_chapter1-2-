@@ -132,8 +132,9 @@ function App() {
     editEvent,
   } = useEventForm();
 
-  const { events, saveEvent, deleteEvent } = useEventOperations(Boolean(editingEvent), () =>
-    setEditingEvent(null)
+  const { events, fetchEvents, saveEvent, deleteEvent } = useEventOperations(
+    Boolean(editingEvent),
+    () => setEditingEvent(null)
   );
 
   const { notifications, notifiedEvents, setNotifications } = useNotifications(events);
@@ -146,6 +147,8 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditOptionsDialogOpen, setIsEditOptionsDialogOpen] = useState(false);
   const [pendingEventData, setPendingEventData] = useState<Event | EventForm | null>(null);
+  const [isDeleteOptionsDialogOpen, setIsDeleteOptionsDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -176,7 +179,7 @@ function App() {
             ...editingEvent.repeat, // Preserve metadata
             type: isRepeating ? repeatType : 'none',
             interval: repeatInterval,
-            endDate: repeatEndDate || undefined,
+            endDate: repeatEndDate || '2025-12-31',
           },
           notificationTime,
         }
@@ -193,7 +196,7 @@ function App() {
           repeat: {
             type: isRepeating ? repeatType : 'none',
             interval: repeatInterval,
-            endDate: repeatEndDate || undefined,
+            endDate: repeatEndDate || '2025-12-31',
           },
           notificationTime,
         };
@@ -221,82 +224,161 @@ function App() {
   const handleEditSingle = async () => {
     if (!pendingEventData) return;
 
-    // Remove ID and repeat metadata to create NEW event
-    // <!-- ID와 반복 메타데이터 제거하여 새 이벤트 생성 -->
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, repeat, ...eventWithoutIdAndRepeat } = pendingEventData as Event;
-
-    const singleEventData: EventForm = {
-      ...eventWithoutIdAndRepeat,
-      repeat: {
-        type: 'none',
-        interval: 0,
-      },
-    };
+    const originalEvent = pendingEventData as Event;
 
     setIsEditOptionsDialogOpen(false);
     setPendingEventData(null);
 
-    // CRITICAL: Clear editingEvent so useEventOperations uses POST
-    // <!-- 중요: editingEvent를 지워서 useEventOperations가 POST를 사용하도록 함 -->
-    setEditingEvent(null);
+    try {
+      // Update this specific instance only (keep repeat metadata)
+      // <!-- 이 특정 인스턴스만 업데이트 (반복 메타데이터 유지) -->
 
-    // Check for overlaps after closing dialog
-    // <!-- 다이얼로그 닫은 후 오버랩 체크 -->
-    const overlapping = findOverlappingEvents(singleEventData, events);
-    if (overlapping.length > 0) {
-      const canBypass = shouldAllowOverlapBypass(singleEventData, overlapping);
-      setOverlappingEvents(overlapping);
-      setAllowBypass(canBypass);
-      setIsOverlapDialogOpen(true);
-      return;
+      // Check for overlaps with the updated event data
+      // <!-- 업데이트된 이벤트 데이터로 오버랩 체크 -->
+      const remainingEvents = events.filter((e) => e.id !== originalEvent.id);
+      const overlapping = findOverlappingEvents(pendingEventData, remainingEvents);
+
+      if (overlapping.length > 0) {
+        const canBypass = shouldAllowOverlapBypass(pendingEventData, overlapping);
+        if (!canBypass) {
+          setOverlappingEvents(overlapping);
+          setAllowBypass(false);
+          setIsOverlapDialogOpen(true);
+          return;
+        }
+      }
+
+      // Update the specific instance via PUT (preserves repeat metadata)
+      // <!-- PUT을 통해 특정 인스턴스 업데이트 (반복 메타데이터 보존) -->
+      const response = await fetch(`/api/events/${originalEvent.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pendingEventData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update event');
+      }
+
+      await fetchEvents();
+      setEditingEvent(null);
+      resetForm();
+      enqueueSnackbar('일정이 수정되었습니다.', { variant: 'success' });
+    } catch (error) {
+      console.error('Error editing single instance:', error);
+      enqueueSnackbar('일정 수정 실패', { variant: 'error' });
     }
-
-    // Now saveEvent will use POST (creating new event)
-    // <!-- 이제 saveEvent는 POST를 사용 (새 이벤트 생성) -->
-    await saveEvent(singleEventData);
-    resetForm();
   };
 
   const handleEditAll = async () => {
     if (!pendingEventData || !editingEvent) return;
 
-    // Preserve original repeat information
-    // <!-- 원본 반복 정보 보존 -->
-    const allEditData = {
-      ...pendingEventData,
+    const repeatId = editingEvent.repeat?.id;
+
+    if (!repeatId) {
+      // Not a recurring event with repeatId, fallback to single edit
+      // <!-- repeatId 없는 반복 이벤트, 단일 수정으로 폴백 -->
+      await handleEditSingle();
+      return;
+    }
+
+    // Prepare update data (without id, but include repeat metadata with endDate)
+    // <!-- 수정 데이터 준비 (id 제외, repeat 메타데이터와 endDate 포함) -->
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...baseUpdateData } = pendingEventData as Event;
+
+    // Include repeat metadata with updated endDate
+    // <!-- 업데이트된 endDate를 포함한 repeat 메타데이터 포함 -->
+    const updatePayload = {
+      ...baseUpdateData,
       repeat: {
-        ...editingEvent.repeat, // Use original event's repeat info
-        // <!-- 원본 이벤트의 반복 정보 사용 -->
+        type: editingEvent.repeat.type,
+        interval: editingEvent.repeat.interval,
+        id: repeatId,
+        endDate: (pendingEventData as Event).repeat.endDate,
       },
     };
 
     setIsEditOptionsDialogOpen(false);
     setPendingEventData(null);
 
-    // Keep editingEvent set - useEventOperations will use PUT
-    // <!-- editingEvent 유지 - useEventOperations가 PUT 사용 -->
-    // It will automatically use originalEventId from repeat metadata
-    // <!-- repeat 메타데이터의 originalEventId를 자동으로 사용 -->
+    try {
+      // Update all instances in the recurring series
+      // <!-- 반복 시리즈의 모든 인스턴스 업데이트 -->
+      const response = await fetch(`/api/recurring-events/${repeatId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatePayload),
+      });
 
-    // Check for overlaps
-    // <!-- 오버랩 체크 -->
-    const overlapping = findOverlappingEvents(allEditData, events);
-    if (overlapping.length > 0) {
-      const canBypass = shouldAllowOverlapBypass(allEditData, overlapping);
-      setOverlappingEvents(overlapping);
-      setAllowBypass(canBypass);
-      setIsOverlapDialogOpen(true);
-      return;
+      if (!response.ok) {
+        throw new Error('Failed to update recurring series');
+      }
+
+      await fetchEvents();
+      setEditingEvent(null);
+      resetForm();
+      enqueueSnackbar('일정이 수정되었습니다.', { variant: 'success' });
+    } catch (error) {
+      console.error('Error updating all instances:', error);
+      enqueueSnackbar('일정 수정 실패', { variant: 'error' });
     }
-
-    await saveEvent(allEditData);
-    resetForm();
   };
 
   const handleCloseEditOptions = () => {
     setIsEditOptionsDialogOpen(false);
     setPendingEventData(null);
+  };
+
+  const handleDeleteSingle = async () => {
+    if (!eventToDelete) return;
+
+    // For instance model: delete only this specific event instance
+    // <!-- 인스턴스 모델: 이 특정 이벤트 인스턴스만 삭제 -->
+    await deleteEvent(eventToDelete.id);
+
+    setIsDeleteOptionsDialogOpen(false);
+    setEventToDelete(null);
+  };
+
+  const handleDeleteAll = async () => {
+    if (!eventToDelete) return;
+
+    try {
+      // For instance model: delete all events with same repeat.id
+      // <!-- 인스턴스 모델: 같은 repeat.id를 가진 모든 이벤트 삭제 -->
+      const repeatId = eventToDelete.repeat?.id;
+
+      if (repeatId) {
+        const response = await fetch(`/api/recurring-events/${repeatId}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete recurring series');
+        }
+
+        await fetchEvents();
+        enqueueSnackbar('일정이 삭제되었습니다.', { variant: 'info' });
+      } else {
+        // Fallback for non-recurring events
+        // <!-- 반복하지 않는 이벤트의 폴백 -->
+        await deleteEvent(eventToDelete.id);
+      }
+
+      setIsDeleteOptionsDialogOpen(false);
+      setEventToDelete(null);
+    } catch (error) {
+      console.error('Error deleting all instances:', error);
+      enqueueSnackbar('일정 삭제 실패', { variant: 'error' });
+      setIsDeleteOptionsDialogOpen(false);
+      setEventToDelete(null);
+    }
+  };
+
+  const handleCloseDeleteOptions = () => {
+    setIsDeleteOptionsDialogOpen(false);
+    setEventToDelete(null);
   };
 
   const renderWeekView = () => {
@@ -355,10 +437,16 @@ function App() {
                           >
                             <Stack direction="row" spacing={1} alignItems="center">
                               {isNotified && <Notifications fontSize="small" />}
-                              {event.repeat.type !== 'none' && (() => {
-                                const RepeatIconComponent = getRepeatIcon(event.repeat.type);
-                                return <RepeatIconComponent fontSize="small" data-testid="RepeatIcon" />;
-                              })()}
+                              {event.repeat.type !== 'none' &&
+                                (() => {
+                                  const RepeatIconComponent = getRepeatIcon(event.repeat.type);
+                                  return (
+                                    <RepeatIconComponent
+                                      fontSize="small"
+                                      data-testid="RepeatIcon"
+                                    />
+                                  );
+                                })()}
                               <Typography
                                 variant="caption"
                                 noWrap
@@ -446,10 +534,18 @@ function App() {
                                 >
                                   <Stack direction="row" spacing={1} alignItems="center">
                                     {isNotified && <Notifications fontSize="small" />}
-                                    {event.repeat.type !== 'none' && (() => {
-                                      const RepeatIconComponent = getRepeatIcon(event.repeat.type);
-                                      return <RepeatIconComponent fontSize="small" data-testid="RepeatIcon" />;
-                                    })()}
+                                    {event.repeat.type !== 'none' &&
+                                      (() => {
+                                        const RepeatIconComponent = getRepeatIcon(
+                                          event.repeat.type
+                                        );
+                                        return (
+                                          <RepeatIconComponent
+                                            fontSize="small"
+                                            data-testid="RepeatIcon"
+                                          />
+                                        );
+                                      })()}
                                     <Typography
                                       variant="caption"
                                       noWrap
@@ -620,7 +716,7 @@ function App() {
                 helperText={
                   repeatEndDate !== '' && date !== '' && repeatEndDate < date
                     ? '종료 날짜는 시작 날짜 이후여야 합니다'
-                    : '(선택사항: 비워두면 무한 반복)'
+                    : '(선택사항: 2025-12-31)'
                 }
               />
             </FormControl>
@@ -789,7 +885,17 @@ function App() {
                     <IconButton aria-label="Edit event" onClick={() => editEvent(event)}>
                       <Edit />
                     </IconButton>
-                    <IconButton aria-label="Delete event" onClick={() => deleteEvent(event.id)}>
+                    <IconButton
+                      aria-label="Delete event"
+                      onClick={() => {
+                        if (event.repeat?.type !== 'none') {
+                          setEventToDelete(event);
+                          setIsDeleteOptionsDialogOpen(true);
+                        } else {
+                          deleteEvent(event.id);
+                        }
+                      }}
+                    >
                       <Delete />
                     </IconButton>
                   </Stack>
@@ -837,7 +943,7 @@ function App() {
                           ...editingEvent.repeat,
                           type: isRepeating ? repeatType : 'none',
                           interval: repeatInterval,
-                          endDate: repeatEndDate || undefined,
+                          endDate: repeatEndDate || '2025-12-31',
                         },
                         notificationTime,
                       }
@@ -852,7 +958,7 @@ function App() {
                         repeat: {
                           type: isRepeating ? repeatType : 'none',
                           interval: repeatInterval,
-                          endDate: repeatEndDate || undefined,
+                          endDate: repeatEndDate || '2025-12-31',
                         },
                         notificationTime,
                       }
@@ -871,6 +977,15 @@ function App() {
         onClose={handleCloseEditOptions}
         onEditSingle={handleEditSingle}
         onEditAll={handleEditAll}
+      />
+
+      <EditOptionsDialog
+        open={isDeleteOptionsDialogOpen}
+        onClose={handleCloseDeleteOptions}
+        onEditSingle={handleDeleteSingle}
+        onEditAll={handleDeleteAll}
+        title="해당 일정만 삭제하시겠어요?"
+        message="'예'를 선택하면 이 일정만 삭제되고, '아니오'를 선택하면 모든 반복 일정이 삭제됩니다."
       />
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

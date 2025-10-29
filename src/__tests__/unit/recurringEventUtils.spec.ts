@@ -96,4 +96,3 @@ describe('generateRecurringEvents - endDate filtering', () => {
     expect(events[0].date).toBe('2025-10-01');
   });
 });
-

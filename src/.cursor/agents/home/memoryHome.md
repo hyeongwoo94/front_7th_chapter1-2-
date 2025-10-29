@@ -501,5 +501,310 @@ Provides: Comprehensive overview of all past commands, decisions, and outcomes
 
 ---
 
-**Memory Version**: 2.0 (Refactored 2024-10-29)
-<!-- 메모리 버전: 2.0 (2024-10-29 리팩토링) -->
+## Review Patterns
+<!-- 리뷰 패턴 -->
+
+This section stores lessons learned from formal code reviews. Memory automatically extracts and categorizes insights to help all agents improve.
+<!-- 이 섹션은 공식 코드 리뷰에서 학습한 교훈을 저장합니다. Memory는 자동으로 인사이트를 추출하고 분류하여 모든 에이전트가 개선할 수 있도록 돕습니다. -->
+
+### Diagnostic Pattern: Root Cause Misdiagnosis (2025-10-29)
+<!-- 진단 패턴: 근본 원인 오진 (2025-10-29) -->
+
+**Source**: `review/2025-10-29_integration-test-recurring-event-issue-v2.md`
+<!-- 출처: -->
+
+**Problem**: Integration tests failing with "Found multiple elements with text"
+<!-- 문제: "Found multiple elements with text"로 통합 테스트 실패 -->
+
+**Initial Diagnosis (WRONG)**: Tests don't specify `repeat` field → backend defaults to recurring → events expand
+<!-- 초기 진단 (틀림): 테스트가 `repeat` 필드를 지정하지 않음 → 백엔드가 반복으로 기본 설정 → 이벤트 확장 -->
+
+**Root Cause (CORRECT)**: System behavior is to expand recurring events. Tests should accept this reality, not fight it.
+<!-- 근본 원인 (올바름): 시스템 동작은 반복 일정을 확장하는 것. 테스트는 이 현실을 수용해야 하며, 싸우지 말아야 함 -->
+
+**Solution**: Change test query from `getByText` to `getAllByText()[0]` (3 lines changed)
+<!-- 해결책: 테스트 쿼리를 `getByText`에서 `getAllByText()[0]`로 변경 (3줄 변경) -->
+
+**Anti-Pattern**: First solution tried to modify test data to force non-recurring behavior (7+ lines, fragile, high complexity)
+<!-- 안티패턴: 첫 번째 해결책은 반복 없는 동작을 강제하려고 테스트 데이터를 수정하려 함 (7줄 이상, 취약, 높은 복잡도) -->
+
+**Lessons**:
+<!-- 교훈: -->
+1. **Accept system behavior, don't fight it**: If events expand, handle it in tests
+   <!-- 시스템 동작 수용, 싸우지 말 것: 이벤트가 확장되면 테스트에서 처리 -->
+2. **Choose simple solutions**: One line > seven lines
+   <!-- 간단한 해결책 선택: 한 줄 > 일곱 줄 -->
+3. **Loose coupling**: Tests shouldn't depend on form state internals
+   <!-- 느슨한 결합: 테스트가 폼 상태 내부에 의존하지 않아야 함 -->
+4. **Verify assumptions**: Don't assume backend behavior without checking
+   <!-- 가정 검증: 확인 없이 백엔드 동작 가정하지 말 것 -->
+
+**Applies To**: Manager (diagnostic process), Worker (test implementation), Planner (solution design)
+<!-- 적용 대상: Manager(진단 프로세스), Worker(테스트 구현), Planner(해결책 설계) -->
+
+**Diagnostic Checklist for Manager**:
+<!-- Manager를 위한 진단 체크리스트: -->
+- [ ] Don't assume root cause without verification
+<!-- 검증 없이 근본 원인 가정하지 말 것 -->
+- [ ] Consider: Is this fighting system behavior?
+<!-- 고려: 시스템 동작과 싸우고 있는가? -->
+- [ ] Prefer simple solutions over complex ones
+<!-- 복잡한 것보다 간단한 해결책 선호 -->
+- [ ] Check if "fixing" behavior makes sense or accepting it is better
+<!-- 동작을 "고치는" 것이 합리적인지 아니면 수용하는 것이 더 나은지 확인 -->
+
+---
+
+### Testing Pattern: Query Method Selection (2025-10-29)
+<!-- 테스팅 패턴: 쿼리 메서드 선택 (2025-10-29) -->
+
+**Source**: `review/2025-10-29_integration-test-recurring-event-issue-v2.md`
+<!-- 출처: -->
+
+**Problem**: `getByText` throws error when multiple elements match
+<!-- 문제: 여러 요소가 일치할 때 `getByText`가 오류 발생 -->
+
+**Root Cause**: Using wrong query method for scenario with multiple matching elements
+<!-- 근본 원인: 여러 일치 요소가 있는 시나리오에 잘못된 쿼리 메서드 사용 -->
+
+**Solution**: Use `getAllByText()[0]` when multiple instances expected
+<!-- 해결책: 여러 인스턴스가 예상될 때 `getAllByText()[0]` 사용 -->
+
+**Guidelines**:
+<!-- 가이드라인: -->
+
+**Use `getByText`** when:
+<!-- `getByText` 사용 시점: -->
+- Element guaranteed to be unique
+- Testing specific instance matters
+- Want test to fail if multiple exist
+
+**Use `getAllByText()[0]`** when:
+<!-- `getAllByText()[0]` 사용 시점: -->
+- Multiple instances expected (lists, recurring items)
+- Only need to verify existence
+- Don't care about specific instance
+
+**Applies To**: Worker (test writing), Planner (test strategy)
+<!-- 적용 대상: Worker(테스트 작성), Planner(테스트 전략) -->
+
+---
+
+### Implementation Pattern: XOR Logic for Business Rules (2025-10-29)
+<!-- 구현 패턴: 비즈니스 규칙을 위한 XOR 로직 (2025-10-29) -->
+
+**Source**: `review/2025-10-29_overlap-dialog-bug-fix.md`
+<!-- 출처: -->
+
+**Problem**: Need to detect when one event is recurring and other is normal (but not both)
+<!-- 문제: 한 이벤트가 반복이고 다른 것이 일반일 때 감지 필요 (둘 다는 아님) -->
+
+**Solution**: Use XOR logic with `!==` operator
+<!-- 해결책: `!==` 연산자로 XOR 로직 사용 -->
+
+```typescript
+// ✅ Clean XOR implementation
+const newIsRecurring = newEvent.repeat.type !== 'none';
+const overlapIsRecurring = event.repeat.type !== 'none';
+return newIsRecurring !== overlapIsRecurring;  // XOR: true only if one is true
+```
+
+**Anti-Pattern**: Complex conditional chains
+<!-- 안티패턴: 복잡한 조건부 체인 -->
+
+```typescript
+// ❌ Complex and error-prone
+if ((newIsRecurring && !overlapIsRecurring) || 
+    (!newIsRecurring && overlapIsRecurring)) {
+  return true;
+}
+```
+
+**Lesson**: XOR can be elegantly expressed with `!==` operator
+<!-- 교훈: XOR은 `!==` 연산자로 우아하게 표현 가능 -->
+
+**Applies To**: Worker (implementation), Planner (logic design)
+<!-- 적용 대상: Worker(구현), Planner(로직 설계) -->
+
+---
+
+### Code Quality Pattern: Pure Functions for Business Logic (2025-10-29)
+<!-- 코드 품질 패턴: 비즈니스 로직을 위한 순수 함수 (2025-10-29) -->
+
+**Source**: `review/2025-10-29_overlap-dialog-bug-fix.md`
+<!-- 출처: -->
+
+**Problem**: Business logic needs to be testable and reusable
+<!-- 문제: 비즈니스 로직은 테스트 가능하고 재사용 가능해야 함 -->
+
+**Solution**: Extract to pure function in utils
+<!-- 해결책: utils의 순수 함수로 추출 -->
+
+```typescript
+// ✅ Pure function: Easy to test, no side effects
+export function hasRecurringNormalConflict(
+  newEvent: Event | EventForm,
+  overlappingEvents: Event[]
+): boolean {
+  // No side effects, deterministic
+  const newIsRecurring = newEvent.repeat.type !== 'none';
+  return overlappingEvents.some((event) => {
+    const overlapIsRecurring = event.repeat.type !== 'none';
+    return newIsRecurring !== overlapIsRecurring;
+  });
+}
+```
+
+**Benefits**:
+<!-- 이점: -->
+- **Testability**: Can test in isolation without UI
+  <!-- 테스트 가능성: UI 없이 독립적으로 테스트 가능 -->
+- **Reusability**: Can use in multiple places
+  <!-- 재사용성: 여러 곳에서 사용 가능 -->
+- **Maintainability**: Logic centralized in one place
+  <!-- 유지보수성: 로직이 한 곳에 집중됨 -->
+- **Type Safety**: Can use union types (`Event | EventForm`)
+  <!-- 타입 안전성: 유니온 타입 사용 가능 -->
+
+**Applies To**: Worker (implementation), Planner (architecture)
+<!-- 적용 대상: Worker(구현), Planner(아키텍처) -->
+
+---
+
+### Test Coverage Pattern: Edge Cases First (2025-10-29)
+<!-- 테스트 커버리지 패턴: 엣지 케이스 우선 (2025-10-29) -->
+
+**Source**: `review/2025-10-29_overlap-dialog-bug-fix.md`
+<!-- 출처: -->
+
+**Problem**: Need comprehensive test coverage for business logic
+<!-- 문제: 비즈니스 로직에 대한 포괄적인 테스트 커버리지 필요 -->
+
+**Solution**: Test edge cases explicitly (7 test cases for XOR logic)
+<!-- 해결책: 엣지 케이스를 명시적으로 테스트 (XOR 로직에 대한 7개 테스트 케이스) -->
+
+**Test Categories**:
+<!-- 테스트 범주: -->
+1. **Base Cases**: Normal scenarios (2 tests)
+   - Normal + Normal → false
+   - Recurring + Recurring → false
+2. **XOR Cases**: The actual logic (2 tests)
+   - Recurring + Normal → true
+   - Normal + Recurring → true
+3. **Edge Cases**: Boundary conditions (3 tests)
+   - Multiple overlaps with at least one XOR → true
+   - No overlaps → false
+   - Empty state handling
+
+**Coverage Checklist**:
+<!-- 커버리지 체크리스트: -->
+- [ ] Happy path
+- [ ] Negative cases (should return false)
+- [ ] Positive cases (should return true)
+- [ ] Multiple items
+- [ ] Empty/null cases
+- [ ] Boundary conditions
+
+**Applies To**: Worker (test writing), Manager (review checklist)
+<!-- 적용 대상: Worker(테스트 작성), Manager(리뷰 체크리스트) -->
+
+---
+
+### Integration Pattern: Complete Implementation Checklist (2025-10-29)
+<!-- 통합 패턴: 완전한 구현 체크리스트 (2025-10-29) -->
+
+**Source**: From memoryHome.md patterns
+<!-- 출처: memoryHome.md 패턴에서 -->
+
+**Problem**: Tests pass but feature doesn't work in production
+<!-- 문제: 테스트는 통과하지만 프로덕션에서 기능이 작동하지 않음 -->
+
+**Root Cause**: Implemented utility function but never integrated with UI/Hook
+<!-- 근본 원인: 유틸 함수를 구현했지만 UI/Hook과 통합하지 않음 -->
+
+**Complete Checklist**:
+<!-- 완전한 체크리스트: -->
+1. [ ] Utility Function - Core logic implementation
+2. [ ] Unit Tests - Isolated testing
+3. [ ] **Integration** ⭐ - Connect to UI/Hook (CRITICAL)
+   - Import in relevant files
+   - Call from UI/Hook
+   - Pass parameters correctly
+   - Use return value
+4. [ ] Integration Tests - End-to-end verification
+5. [ ] Manual Testing - Browser verification
+
+**Anti-Pattern**: Assuming "tests pass" means "feature complete"
+<!-- 안티패턴: "테스트 통과"가 "기능 완성"을 의미한다고 가정 -->
+
+**Rule**: Tests Passing ≠ Feature Complete
+<!-- 규칙: 테스트 통과 ≠ 기능 완성 -->
+
+**Applies To**: Worker (implementation), Manager (review), Planner (task breakdown)
+<!-- 적용 대상: Worker(구현), Manager(리뷰), Planner(작업 분해) -->
+
+---
+
+## Diagnostic Checklist for All Agents
+<!-- 모든 에이전트를 위한 진단 체크리스트 -->
+
+### What to Avoid (Common Mistakes)
+<!-- 피해야 할 것 (일반적인 실수) -->
+
+**For Manager**:
+- ❌ Assuming root cause without verification
+<!-- 검증 없이 근본 원인 가정 -->
+- ❌ Fighting system behavior instead of accepting it
+<!-- 시스템 동작을 수용하는 대신 싸우기 -->
+- ❌ Choosing complex solutions when simple ones exist
+<!-- 간단한 해결책이 있을 때 복잡한 해결책 선택 -->
+
+**For Worker**:
+- ❌ Using wrong query methods in tests
+<!-- 테스트에서 잘못된 쿼리 메서드 사용 -->
+- ❌ Implementing functions without integration
+<!-- 통합 없이 함수만 구현 -->
+- ❌ Writing complex conditionals for XOR logic
+<!-- XOR 로직에 복잡한 조건문 작성 -->
+
+**For Planner**:
+- ❌ Creating fragile test plans that depend on internals
+<!-- 내부에 의존하는 취약한 테스트 계획 생성 -->
+- ❌ Skipping edge case planning
+<!-- 엣지 케이스 계획 생략 -->
+- ❌ Not verifying integration step in plans
+<!-- 계획에서 통합 단계 검증 안 함 -->
+
+### What to Try (Effective Techniques)
+<!-- 시도해야 할 것 (효과적인 기법) -->
+
+**For Manager**:
+- ✅ Verify system behavior before diagnosing
+<!-- 진단 전 시스템 동작 검증 -->
+- ✅ Consider: "Accept vs Fight" system behavior
+<!-- 고려: 시스템 동작 "수용 vs 싸움" -->
+- ✅ Prefer simple, robust solutions
+<!-- 간단하고 견고한 해결책 선호 -->
+
+**For Worker**:
+- ✅ Use `getAllByText()[0]` for repeated elements
+<!-- 반복 요소에 `getAllByText()[0]` 사용 -->
+- ✅ Extract business logic to pure functions
+<!-- 비즈니스 로직을 순수 함수로 추출 -->
+- ✅ Use `!==` for elegant XOR implementation
+<!-- 우아한 XOR 구현에 `!==` 사용 -->
+- ✅ Always complete integration step
+<!-- 항상 통합 단계 완료 -->
+
+**For Planner**:
+- ✅ Include integration step in all plans
+<!-- 모든 계획에 통합 단계 포함 -->
+- ✅ Plan edge case tests explicitly
+<!-- 엣지 케이스 테스트를 명시적으로 계획 -->
+- ✅ Design for loose coupling
+<!-- 느슨한 결합을 위한 설계 -->
+
+---
+
+**Memory Version**: 2.1 (Review Learning Added 2024-10-29)
+<!-- 메모리 버전: 2.1 (리뷰 학습 추가 2024-10-29) -->

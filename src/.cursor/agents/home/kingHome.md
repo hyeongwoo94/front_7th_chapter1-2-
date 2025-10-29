@@ -79,6 +79,138 @@ These keywords trigger specific workflows when issued by the user.
 **File Naming:** Auto-increments based on existing files (test_01.spec.ts, test_02.spec.ts, test_03.spec.ts, ...)
 <!-- 파일 네이밍: 기존 파일 기반 자동 증가 (test_01.spec.ts, test_02.spec.ts, test_03.spec.ts, ...) -->
 
+### 전체 테스트코드
+<!-- 전체 테스트코드 -->
+**Trigger:** "전체 테스트코드"
+<!-- 트리거: "전체 테스트코드" -->
+**Workflow:**
+1. King receives test execution command
+<!-- 1. 건물주가 테스트 실행 명령을 받습니다 -->
+2. King executes: `npm test -- --run`
+<!-- 2. 건물주가 실행: `npm test -- --run` -->
+3. King collects test results (total tests, passed, failed, duration)
+<!-- 3. 건물주가 테스트 결과 수집 (총 테스트, 통과, 실패, 소요시간) -->
+4. King reports summary to user
+<!-- 4. 건물주가 사용자에게 요약 보고 -->
+
+**Expected Output:**
+<!-- 예상 출력: -->
+```
+✅ All tests passed: [X] tests passed out of [Y] total
+Duration: [Z] seconds
+또는
+❌ Some tests failed: [X] tests passed, [Y] tests failed out of [Z] total
+Duration: [W] seconds
+```
+
+### 린트 검사
+<!-- 린트 검사 -->
+**Trigger:** "린트 검사"
+<!-- 트리거: "린트 검사" -->
+**Workflow:**
+1. King receives lint check command
+<!-- 1. 건물주가 린트 검사 명령을 받습니다 -->
+2. King executes TypeScript check: `npm run lint:tsc`
+<!-- 2. 건물주가 TypeScript 검사 실행: `npm run lint:tsc` -->
+3. King executes ESLint check: `npm run lint:eslint`
+<!-- 3. 건물주가 ESLint 검사 실행: `npm run lint:eslint` -->
+4. King reports any errors or warnings
+<!-- 4. 건물주가 오류 또는 경고 보고 -->
+
+**Expected Output:** Linting results summary
+<!-- 예상 출력: 린팅 결과 요약 -->
+
+### 커밋 전 체크
+<!-- 커밋 전 체크 -->
+**Trigger:** "커밋 전 체크"
+<!-- 트리거: "커밋 전 체크" -->
+**Workflow:**
+1. King receives pre-commit validation command
+<!-- 1. 건물주가 커밋 전 검증 명령을 받습니다 -->
+2. King checks CRLF: `git diff --check`
+<!-- 2. 건물주가 CRLF 확인: `git diff --check` -->
+3. King validates TypeScript: `npm run lint:tsc`
+<!-- 3. 건물주가 TypeScript 검증: `npm run lint:tsc` -->
+4. King validates ESLint: `npm run lint:eslint`
+<!-- 4. 건물주가 ESLint 검증: `npm run lint:eslint` -->
+5. King runs all tests: `npm test -- --run`
+<!-- 5. 건물주가 모든 테스트 실행: `npm test -- --run` -->
+6. King generates checklist report
+<!-- 6. 건물주가 체크리스트 보고서 생성 -->
+
+**Expected Output:** Complete pre-commit validation report
+<!-- 예상 출력: 완전한 커밋 전 검증 보고서 -->
+
+### 리뷰 학습
+<!-- 리뷰 학습 -->
+**Trigger:** "리뷰 학습" or automatic after "리뷰해"
+<!-- 트리거: "리뷰 학습" 또는 "리뷰해" 후 자동 -->
+**Workflow:**
+1. King receives review learning command
+<!-- 1. 건물주가 리뷰 학습 명령을 받습니다 -->
+2. King scans `src/.cursor/agents/review/` folder for new reviews
+<!-- 2. 건물주가 `src/.cursor/agents/review/` 폴더에서 새 리뷰 스캔 -->
+3. King delegates to Memory: "Process new review files"
+<!-- 3. 건물주가 세월이에게 위임: "새 리뷰 파일 처리" -->
+4. Memory extracts core information:
+<!-- 4. 세월이가 핵심 정보 추출: -->
+   - Problem description and symptoms
+   <!-- 문제 설명과 증상 -->
+   - Root cause analysis
+   <!-- 근본 원인 분석 -->
+   - Solution approach (correct and rejected)
+   <!-- 해결책 접근 (올바른 것과 거부된 것) -->
+   - Diagnostic mistakes (if any)
+   <!-- 진단 실수 (있는 경우) -->
+   - Lessons learned
+   <!-- 교훈 -->
+5. Memory categorizes by pattern type:
+<!-- 5. 세월이가 패턴 유형별로 분류: -->
+   - TypeScript/Type Safety Issues
+   - UI/UX Bugs
+   - Integration/Implementation Gaps
+   - Data Flow/State Management
+   - Test Strategy/Coverage
+   - Diagnostic Process Issues
+6. Memory stores in `memoryHome.md` Review Patterns section
+<!-- 6. 세월이가 `memoryHome.md` 리뷰 패턴 섹션에 저장 -->
+7. Memory updates Diagnostic Checklist
+<!-- 7. 세월이가 진단 체크리스트 업데이트 -->
+8. King reports learning summary to user
+<!-- 8. 건물주가 사용자에게 학습 요약 보고 -->
+
+**Format**: Problem → Root Cause → Solution → Anti-Pattern → Lesson → Applies To
+<!-- 형식: 문제 → 근본 원인 → 해결책 → 안티패턴 → 교훈 → 적용 대상 -->
+
+**Expected Output:**
+<!-- 예상 출력: -->
+```
+✅ Review Learning Complete
+
+Processed: [N] new review files
+- review/[filename-1].md
+- review/[filename-2].md
+
+Extracted Patterns:
+- [Pattern 1]: [Category] - [Key Lesson]
+- [Pattern 2]: [Category] - [Key Lesson]
+
+Updated:
+- memoryHome.md: Added [N] new patterns
+- Diagnostic Checklist: Added [M] new items
+
+All agents can now reference these patterns to avoid repeating mistakes.
+```
+
+**Agent Benefits:**
+<!-- 에이전트 이점: -->
+- **Planner**: Check Review Patterns before planning to avoid past mistakes
+  <!-- 계획자: 과거 실수를 피하기 위해 계획 전 리뷰 패턴 확인 -->
+- **Worker**: Reference successful solutions and avoid anti-patterns
+  <!-- 노동자: 성공적인 해결책 참조 및 안티패턴 방지 -->
+- **Manager**: Improve diagnostic accuracy by learning from past misdiagnoses
+  <!-- 관리자: 과거 오진에서 학습하여 진단 정확도 향상 -->
+
 ## Command Management
 <!-- 명령 관리 -->
 - **Adding New Commands**: Add trigger keyword and workflow steps here

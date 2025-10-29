@@ -36,6 +36,8 @@
 <!-- 관리자 기록: 품질 패턴, 일반적인 문제, 검토 피드백, 개선 접근 -->
 - **King Records**: Strategic decisions, command history, outcomes
 <!-- 건물주 기록: 전략적 결정, 명령 이력, 결과 -->
+- **Review Records**: Formal code reviews, root cause analysis, diagnostic patterns, solution evaluations
+<!-- 리뷰 기록: 공식 코드 리뷰, 근본 원인 분석, 진단 패턴, 해결책 평가 -->
 
 ### By Type
 <!-- 유형별 -->
@@ -49,6 +51,8 @@
 <!-- 일반적인 함정: 피해야 할 반복되는 실수 -->
 - **Process Evolution**: How workflows improved over time
 <!-- 프로세스 진화: 워크플로가 시간이 지남에 따라 개선된 방식 -->
+- **Diagnostic Patterns**: Root cause investigation techniques and common misdiagnoses
+<!-- 진단 패턴: 근본 원인 조사 기법과 일반적인 오진 -->
 
 ## Agent Coordination
 <!-- 에이전트 조정 -->
@@ -74,6 +78,128 @@
 <!-- 노동자 (구현 전 필수 상담): 과거 코드 패턴, 해결책, TDD 패턴, 리팩토링 기법, 구현 가이드 -->
 - **Manager (MUST consult before review)**: Historical quality patterns, common issues, past review feedback, quality improvement insights
 <!-- 관리자 (검토 전 필수 상담): 과거 품질 패턴, 일반적인 문제, 과거 검토 피드백, 품질 개선 인사이트 -->
+
+## Review Learning System
+<!-- 리뷰 학습 시스템 -->
+
+Memory automatically learns from all code reviews in `src/.cursor/agents/review/` folder to help agents avoid repeating mistakes and improve diagnostic accuracy.
+<!-- Memory는 `src/.cursor/agents/review/` 폴더의 모든 코드 리뷰에서 자동으로 학습하여 에이전트들이 실수를 반복하지 않고 진단 정확도를 높이도록 돕습니다. -->
+
+### Review Processing Workflow
+<!-- 리뷰 처리 워크플로 -->
+
+**Trigger**: When Manager completes a code review and saves to `review/` folder
+<!-- 트리거: Manager가 코드 리뷰를 완료하고 `review/` 폴더에 저장할 때 -->
+
+**Process**:
+<!-- 프로세스: -->
+
+1. **Extract Core Information**
+<!-- 핵심 정보 추출 -->
+   - Problem description and symptoms
+   <!-- 문제 설명과 증상 -->
+   - Root cause analysis
+   <!-- 근본 원인 분석 -->
+   - Solution approach (correct and rejected)
+   <!-- 해결책 접근 (올바른 것과 거부된 것) -->
+   - Diagnostic mistakes (if any)
+   <!-- 진단 실수 (있는 경우) -->
+   - Lessons learned
+   <!-- 교훈 -->
+
+2. **Categorize by Pattern Type**
+<!-- 패턴 유형별 분류 -->
+   - TypeScript/Type Safety Issues
+   - UI/UX Bugs
+   - Integration/Implementation Gaps
+   - Data Flow/State Management
+   - Test Strategy/Coverage
+   - Diagnostic Process Issues
+   <!-- TypeScript/타입 안전성 이슈, UI/UX 버그, 통합/구현 격차, 데이터 흐름/상태 관리, 테스트 전략/커버리지, 진단 프로세스 이슈 -->
+
+3. **Store in memoryHome.md**
+<!-- memoryHome.md에 저장 -->
+   - Add to Review Patterns section
+   <!-- Review Patterns 섹션에 추가 -->
+   - Format: Problem → Root Cause → Solution → Lesson
+   <!-- 형식: 문제 → 근본 원인 → 해결책 → 교훈 -->
+   - Keep concise (max 30 lines per pattern)
+   <!-- 간결하게 유지 (패턴당 최대 30줄) -->
+
+4. **Update Diagnostic Checklist**
+<!-- 진단 체크리스트 업데이트 -->
+   - Add common misdiagnoses to "What to Avoid"
+   <!-- "피해야 할 것"에 일반적인 오진 추가 -->
+   - Add effective techniques to "What to Try"
+   <!-- "시도해야 할 것"에 효과적인 기법 추가 -->
+
+### Review Pattern Format
+<!-- 리뷰 패턴 형식 -->
+
+```markdown
+### [Pattern Name] (YYYY-MM-DD)
+<!-- 패턴 이름 (날짜) -->
+
+**Source**: `review/[filename].md`
+<!-- 출처: 리뷰 파일명 -->
+
+**Problem**: [Symptom observed]
+<!-- 문제: 관찰된 증상 -->
+
+**Root Cause**: [Why it happened]
+<!-- 근본 원인: 왜 발생했는지 -->
+
+**Solution**: [What worked]
+<!-- 해결책: 무엇이 효과적이었는지 -->
+
+**Anti-Pattern**: [What didn't work / Common mistake]
+<!-- 안티패턴: 효과 없었던 것 / 흔한 실수 -->
+
+**Lesson**: [Key takeaway for future]
+<!-- 교훈: 미래를 위한 핵심 요점 -->
+
+**Applies To**: [Which agents/roles should use this]
+<!-- 적용 대상: 어떤 에이전트/역할이 사용해야 하는지 -->
+```
+
+### Agent Usage Protocol
+<!-- 에이전트 사용 프로토콜 -->
+
+**Planner (MUST consult before planning)**:
+<!-- 계획자 (계획 전 필수 상담): -->
+- Check Review Patterns for similar past issues
+<!-- 유사한 과거 이슈에 대한 리뷰 패턴 확인 -->
+- Review diagnostic mistakes to avoid
+<!-- 피해야 할 진단 실수 검토 -->
+- Apply proven solution approaches
+<!-- 검증된 해결책 접근 적용 -->
+
+**Worker (MUST consult before implementation)**:
+<!-- 노동자 (구현 전 필수 상담): -->
+- Check Review Patterns for implementation anti-patterns
+<!-- 구현 안티패턴에 대한 리뷰 패턴 확인 -->
+- Reference successful solutions from past reviews
+<!-- 과거 리뷰의 성공적인 해결책 참조 -->
+- Avoid common integration mistakes
+<!-- 일반적인 통합 실수 방지 -->
+
+**Manager (MUST consult before review)**:
+<!-- 관리자 (검토 전 필수 상담): -->
+- Check Review Patterns for diagnostic best practices
+<!-- 진단 모범 사례에 대한 리뷰 패턴 확인 -->
+- Review past misdiagnoses to improve accuracy
+<!-- 정확도 향상을 위해 과거 오진 검토 -->
+- Apply effective root cause analysis techniques
+<!-- 효과적인 근본 원인 분석 기법 적용 -->
+
+**King (Coordinates review learning)**:
+<!-- 건물주 (리뷰 학습 조정): -->
+- Triggers Memory to process new reviews
+<!-- Memory가 새 리뷰를 처리하도록 트리거 -->
+- Ensures all agents consult Review Patterns
+<!-- 모든 에이전트가 리뷰 패턴을 참조하도록 보장 -->
+- Monitors diagnostic accuracy improvement
+<!-- 진단 정확도 개선 모니터링 -->
 
 ## TDD Patterns
 <!-- TDD 패턴 -->

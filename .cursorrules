@@ -41,8 +41,8 @@ Automatically execute the following rules for each conversation:
    
    **A. Review Request** (when user says "리뷰해"):
    <!-- 리뷰 요청 (사용자가 "리뷰해"라고 말할 때): -->
-   - Save to `src/.cursor/agents/review/` folder
-   <!-- `src/.cursor/agents/review/` 폴더에 저장 -->
+   - Save to `src/.cursor/agents/review/` folder ONLY (DO NOT save to histroy folder)
+   <!-- `src/.cursor/agents/review/` 폴더에만 저장 (histroy 폴더에 저장하지 않음) -->
    - File naming: `YYYY-MM-DD_task-description.md`
    <!-- 파일명: `YYYY-MM-DD_작업설명.md` -->
    - Example: `2025-10-29_overlap-dialog-bug-fix.md`
